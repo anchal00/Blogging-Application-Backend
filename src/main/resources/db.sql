@@ -4,10 +4,12 @@ USE blogapp;
 
 CREATE TABLE users(
     id int PRIMARY KEY AUTO_INCREMENT , 
+    firstname varchar(15) NOT NULL ,
+    lastname varchar(15), 
     username varchar(10) NOT NULL, 
     bio varchar(150), 
     email varchar(20) UNIQUE NOT NULL, 
-    passwd varchar(15) NOT NULL
+    passwd varchar(60) NOT NULL
 );
 
 CREATE TABLE user_followings(
