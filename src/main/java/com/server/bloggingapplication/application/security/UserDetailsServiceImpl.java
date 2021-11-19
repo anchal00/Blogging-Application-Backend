@@ -26,6 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException("User doesn't exist");
         }
         User user = optionalUser.get();
+
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(),
                 Collections.emptyList());
     }
