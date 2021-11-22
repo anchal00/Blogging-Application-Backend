@@ -1,10 +1,8 @@
 package com.server.bloggingapplication.application.article;
 
-import java.util.Set;
-
 import javax.validation.constraints.NotBlank;
 
-public class PostArticleRequest {
+public class UpdateArticleRequest {
 
     @NotBlank
     private String title;
@@ -12,22 +10,11 @@ public class PostArticleRequest {
     private String description;
     @NotBlank
     private String body;
-    private Set<String> tags;
 
-    PostArticleRequest() {
-    }
-
-    public PostArticleRequest(String title, String description, String body) {
+    public UpdateArticleRequest(@NotBlank String title, @NotBlank String description, @NotBlank String body) {
         this.title = title;
         this.description = description;
         this.body = body;
-    }
-
-    public PostArticleRequest(String title, String description, String body, Set<String> tags) {
-        this.title = title;
-        this.description = description;
-        this.body = body;
-        this.tags = tags;
     }
 
     public String getBody() {
@@ -36,10 +23,6 @@ public class PostArticleRequest {
 
     public String getDescription() {
         return description;
-    }
-
-    public Set<String> getTags() {
-        return tags;
     }
 
     public String getTitle() {

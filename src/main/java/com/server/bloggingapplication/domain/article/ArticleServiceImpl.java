@@ -1,17 +1,15 @@
 package com.server.bloggingapplication.domain.article;
 
-import java.security.Principal;
 import java.util.Optional;
 
 import com.server.bloggingapplication.application.article.PostArticleRequest;
+import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 import com.server.bloggingapplication.domain.user.User;
 import com.server.bloggingapplication.domain.user.UserDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -26,14 +24,15 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Optional<Article> createArticle(@RequestBody PostArticleRequest createArticleRequest) {
+        String userName = getCurrentUserInfo();
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String userName = auth.getPrincipal().toString();
         Optional<User> optionalOfUser = userDAO.findByUserName(userName);
 
         if (!optionalOfUser.isPresent()) {
             return Optional.empty();
         }
+
+
         Integer userId = optionalOfUser.get().getId();
 
         Article createdArticle = articleDAO.createArticle(userId, createArticleRequest);
@@ -41,10 +40,32 @@ public class ArticleServiceImpl implements ArticleService {
         return Optional.of(createdArticle);
     }
 
-    @Override
-    public Optional<Article> getArticleBySlug(String slug) {
+    private String getCurrentUserInfo() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.isAuthenticated()) return null;
+        String userName = auth.getPrincipal().toString();
+        return userName;
+    }
 
-        return null;
+    @Override
+    public Optional<Article> updateArticle(UpdateArticleRequest articleRequest) {
+
+        String userName = getCurrentUserInfo();
+        if (userName == null) return Optional.empty();
+
+        Optional<User> optionalOfUser = userDAO.findByUserName(userName);
+
+        if (!optionalOfUser.isPresent()) {
+            return Optional.empty();
+        }
+
+        Integer userId = optionalOfUser.get().getId();
+
+        Article updatedArticle = articleDAO.updateArticle(userId, articleRequest);
+        if (updatedArticle == null) {
+            return Optional.empty();
+        }
+        return Optional.of(updatedArticle);
     }
 
 }
