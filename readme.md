@@ -16,3 +16,5 @@ Ensure that you have a user '**admin**' created already in your MySQL server, wi
    2. mysql -u admin -p -e 'source db.sql';
    
 2. To build and run the server , make sure you are in the dir **/BloggingApplication/** i.e root project dir and execute the command - **mvn spring-boot:run**
+   
+3. Access the swagger documentation at localhost:8080/swagger-ui.html
