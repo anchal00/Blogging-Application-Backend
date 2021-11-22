@@ -60,6 +60,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .sign(Algorithm.HMAC256("TEST_SECRET_KEY"));
 
         String body = ((org.springframework.security.core.userdetails.User)authResult.getPrincipal()).getUsername()+" " + jwtToken;
+        
         response.getWriter().write(body);
         response.getWriter().flush();
     }
