@@ -18,6 +18,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private UserDetailsServiceImpl userDetailsServiceImpl;
 
+    private static final String[] AUTH_WHITELIST = {
+            // -- swagger ui
+            "/swagger-resources/**", 
+            "/swagger-ui.html", 
+            "/v2/api-docs", 
+            "/webjars/**" ,
+            "/blogapp/users/signup",
+            "/blogapp/articles"
+        };
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsServiceImpl).passwordEncoder(new BCryptPasswordEncoder());
@@ -25,9 +35,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                .authorizeRequests().antMatchers("/blogapp/users/signup", "/blogapp/articles").permitAll().anyRequest()
-                .authenticated().and().addFilter(new AuthenticationFilter(authenticationManager()))
+        http.csrf().disable().authorizeRequests()
+                .antMatchers(AUTH_WHITELIST)
+                .permitAll().anyRequest().authenticated().and()
+                .addFilter(new AuthenticationFilter(authenticationManager()))
                 .addFilter(new AuthorizationFilter(authenticationManager())).sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
@@ -35,12 +46,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     // @Bean
     // CorsConfigurationSource corsConfigurationSource() {
-    //     final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // final UrlBasedCorsConfigurationSource source = new
+    // UrlBasedCorsConfigurationSource();
 
-    //     CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
-    //     source.registerCorsConfiguration("/**", corsConfiguration);
+    // CorsConfiguration corsConfiguration = new
+    // CorsConfiguration().applyPermitDefaultValues();
+    // source.registerCorsConfiguration("/**", corsConfiguration);
 
-    //     return source;
+    // return source;
     // }
 
     @Bean
