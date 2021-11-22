@@ -23,9 +23,10 @@ public class UserController {
     public ResponseEntity<String> createUser(@Valid @RequestBody CreateUserRequestDTO createUserRequest) {
         
         Integer userId = userService.createUser(createUserRequest);
-        if (userId == -1 ) {
+        if (userId == null || userId == -1 ) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with same username or email is already Registered ");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Success!");
     }
+    
 }

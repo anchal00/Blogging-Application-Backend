@@ -7,7 +7,7 @@ import com.server.bloggingapplication.application.user.CreateUserRequestDTO;
 public interface UserDAO {
 
     Optional<User> findByUserName(String username);
-
+    String getUserName(Integer userId);
     Integer saveUser(CreateUserRequestDTO user);
 
 }

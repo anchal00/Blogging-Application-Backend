@@ -11,6 +11,7 @@ import java.util.Optional;
 import com.server.bloggingapplication.application.user.CreateUserRequestDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,6 +25,7 @@ public class UserDAOImpl implements UserDAO {
 
     private final String INSERT_STMT = "INSERT INTO users(firstname, lastname , username, bio, email, passwd) "
             + "VALUES (?, ? , ? , ?, ? , ?)";
+
     private final String COUNT_OCCURENCES_STMT = "SELECT COUNT(*) FROM users WHERE username = ? OR email = ? ";
 
     private final String FIND_BY_USERNAME_STMT = "SELECT * FROM users WHERE username = ? ";
@@ -52,13 +54,14 @@ public class UserDAOImpl implements UserDAO {
             @Override
             public User mapRow(ResultSet resultSet, int arg1) throws SQLException {
 
+                Integer id = resultSet.getInt("id");
                 String userName = resultSet.getString("username");
                 String firstName = resultSet.getString("firstname");
                 String lastName = resultSet.getString("lastname");
                 String bio = resultSet.getString("bio");
                 String email = resultSet.getString("email");
                 String password = resultSet.getString("passwd");
-                User user = new User(firstName, lastName, userName, bio, email, password);
+                User user = new User(id, firstName, lastName, userName, bio, email, password);
                 return user;
             }
         };
@@ -78,29 +81,42 @@ public class UserDAOImpl implements UserDAO {
     @Override
     public Integer saveUser(CreateUserRequestDTO user) {
 
-        if (isValidUserData(user) == false) {
+        // if (isValidUserData(user) == false) {
+        // return -1;
+        // }
+
+        try {
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+
+                    PreparedStatement statement = con.prepareStatement(INSERT_STMT, Statement.RETURN_GENERATED_KEYS);
+                    statement.setString(1, user.getFirstname());
+                    statement.setString(2, user.getLastname());
+                    statement.setString(3, user.getUsername());
+                    statement.setString(4, user.getBio());
+                    statement.setString(5, user.getEmail());
+                    statement.setString(6, new BCryptPasswordEncoder().encode(user.getPassword()));
+
+                    return statement;
+                }
+
+            }, keyHolder);
+
+            return keyHolder.getKey().intValue();
+        } catch (DataAccessException e) {
+            System.out.println("User with same username or email exists already ! ");
             return -1;
         }
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(new PreparedStatementCreator() {
-            @Override
-            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+    }
 
-                PreparedStatement statement = con.prepareStatement(INSERT_STMT, Statement.RETURN_GENERATED_KEYS);
-                statement.setString(1, user.getFirstname());
-                statement.setString(2, user.getLastname());
-                statement.setString(3, user.getUsername());
-                statement.setString(4, user.getBio());
-                statement.setString(5, user.getEmail());
-                statement.setString(6, new BCryptPasswordEncoder().encode(user.getPassword()));
+    @Override
+    public String getUserName(Integer userId) {
 
-                return statement;
-            }
-
-        }, keyHolder);
-
-        return (Integer) keyHolder.getKeys().get("id");
+        return jdbcTemplate.queryForObject(
+                "SELECT CONCAT(firstname,' ',lastname) AS fullname from users WHERE id = " + userId, String.class);
     }
 
 }
