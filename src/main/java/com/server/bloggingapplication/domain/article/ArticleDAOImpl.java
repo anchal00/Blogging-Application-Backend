@@ -7,7 +7,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import com.server.bloggingapplication.application.article.PostArticleRequest;
 import com.server.bloggingapplication.application.article.UpdateArticleRequest;
@@ -27,6 +30,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
+    private static final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
     private final String FETCH_ARTICLE_USING_ID_STMT = "SELECT * from articles where id = ?";
     private final String FIND_ARTICLE_ID_BY_AUTHORID_STMT = "SELECT id from articles WHERE author_id = ? and title = ?";
@@ -41,12 +45,13 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Autowired
     private TagDAO tagDAO;
 
-    private Timestamp getFormattedDate(String source) {
+    private String getFormattedDate(String source) {
         Date date;
         try {
             date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(source);
-            Timestamp timestamp = new Timestamp(date.getTime());
-            return timestamp;
+            // System.out.println(date.toString());
+            // Timestamp timestamp = new Timestamp(date.getTime());
+            return date.toString();
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -65,8 +70,8 @@ public class ArticleDAOImpl implements ArticleDAO {
                 String title = rs.getString("title");
                 String description = rs.getString("article_description");
                 String articleBody = rs.getString("body");
-                Timestamp createdAt = getFormattedDate(rs.getString("created_at"));
-                Timestamp updatedAt = getFormattedDate(rs.getString("updated_at"));
+                String createdAt = getFormattedDate(rs.getString("created_at"));
+                String updatedAt = getFormattedDate(rs.getString("updated_at"));
 
                 return new Article(title, author, description, articleBody, createdAt, updatedAt);
             }
@@ -115,12 +120,12 @@ public class ArticleDAOImpl implements ArticleDAO {
 
     }
 
-    private Integer getArticleIdWithRequiredTitleForGivenUserId(Integer userId , String title) {
+    private Integer getArticleIdWithRequiredTitleForGivenUserId(Integer userId, String title) {
         try {
-            
-            Integer articleId = jdbcTemplate.queryForObject(FIND_ARTICLE_ID_BY_AUTHORID_STMT, new Object[] { userId , title},
-            Integer.class);
-            
+
+            Integer articleId = jdbcTemplate.queryForObject(FIND_ARTICLE_ID_BY_AUTHORID_STMT,
+                    new Object[] { userId, title }, Integer.class);
+
             return articleId;
         } catch (DataAccessException e) {
             System.out.println("ARTICLE DOESNT EXIST");
@@ -151,7 +156,7 @@ public class ArticleDAOImpl implements ArticleDAO {
                 }
             });
 
-            jdbcTemplate.execute("UPDATE articles SET updated_at = CURRENT_TIMESTAMP");
+            jdbcTemplate.update(UPDATE_ARTICLES_TIMESTAMP, new Object[] { articleId });
             Article updatedArticle = getArticleById(articleId);
             return updatedArticle;
 
@@ -162,4 +167,25 @@ public class ArticleDAOImpl implements ArticleDAO {
 
     }
 
+    @Override
+    public List<Article> fetchLatestArticles() {
+
+        List<Article> recentArticleList = null;
+
+        try {
+            recentArticleList = jdbcTemplate.query(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                    PreparedStatement statement = con
+                            .prepareStatement("SELECT * FROM articles ORDER BY created_at DESC");
+                    return statement;
+                }
+            }, articleRowMapper());
+
+            return recentArticleList;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
 }

@@ -1,13 +1,16 @@
 package com.server.bloggingapplication.application.article;
 
+import java.util.List;
 import java.util.Optional;
 
+import com.mysql.cj.protocol.x.Ok;
 import com.server.bloggingapplication.domain.article.Article;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,4 +45,13 @@ public class ArticleController {
 
     }
 
+    @GetMapping("")
+    public ResponseEntity<List<Article>> getAllRecentArticles() {
+
+        List<Article> latestArticles = articleService.getRecentGlobalArticles();
+        if (latestArticles == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(latestArticles);
+    }
 }

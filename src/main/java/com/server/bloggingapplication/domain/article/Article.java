@@ -1,18 +1,16 @@
 package com.server.bloggingapplication.domain.article;
 
-import java.sql.Timestamp;
-
 public class Article {
 
     private String title;
     private String author;
     private String description;
     private String articleBody;
-    private Timestamp createdAt;
-    private Timestamp updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
-    public Article(String title, String author, String description, String articleBody, Timestamp createdAt,
-            Timestamp updatedAt) {
+    public Article(String title, String author, String description, String articleBody, String createdAt,
+            String updatedAt) {
         this.title = title;
         this.author = author;
         this.description = description;
@@ -29,7 +27,7 @@ public class Article {
         return articleBody;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
@@ -41,7 +39,7 @@ public class Article {
         return description;
     }
 
-    public Timestamp getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 

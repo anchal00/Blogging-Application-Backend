@@ -1,5 +1,6 @@
 package com.server.bloggingapplication.domain.article;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.server.bloggingapplication.application.article.PostArticleRequest;
@@ -66,6 +67,11 @@ public class ArticleServiceImpl implements ArticleService {
             return Optional.empty();
         }
         return Optional.of(updatedArticle);
+    }
+
+    @Override
+    public List<Article> getRecentGlobalArticles() {
+        return articleDAO.fetchLatestArticles();
     }
 
 }
