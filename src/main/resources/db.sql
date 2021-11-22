@@ -25,7 +25,7 @@ CREATE TABLE articles(
 
     id int PRIMARY KEY AUTO_INCREMENT,
     author_id int NOT NULL,
-    title varchar(255) NOT NULL,
+    title varchar(255) UNIQUE NOT NULL ,
     article_description varchar(255) NOT NULL,
     body varchar(1000) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -36,8 +36,8 @@ CREATE TABLE articles(
 
 CREATE TABLE tags(
 
-    id int PRIMARY KEY,
-    value varchar(30) UNIQUE NOT NULL
+    id int PRIMARY KEY AUTO_INCREMENT,
+    tag varchar(30) UNIQUE NOT NULL
 );
 
 CREATE TABLE articles_tags(
