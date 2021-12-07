@@ -3,6 +3,8 @@ package com.server.bloggingapplication.domain.article;
 import java.util.List;
 import java.util.Optional;
 
+import com.server.bloggingapplication.application.article.CommentResponse;
+import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
 import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 import com.server.bloggingapplication.domain.user.User;
@@ -33,7 +35,6 @@ public class ArticleServiceImpl implements ArticleService {
             return Optional.empty();
         }
 
-
         Integer userId = optionalOfUser.get().getId();
 
         Article createdArticle = articleDAO.createArticle(userId, createArticleRequest);
@@ -43,7 +44,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     private String getCurrentUserInfo() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (!auth.isAuthenticated()) return null;
+        if (!auth.isAuthenticated())
+            return null;
         String userName = auth.getPrincipal().toString();
         return userName;
     }
@@ -52,7 +54,8 @@ public class ArticleServiceImpl implements ArticleService {
     public Optional<Article> updateArticle(UpdateArticleRequest articleRequest) {
 
         String userName = getCurrentUserInfo();
-        if (userName == null) return Optional.empty();
+        if (userName == null)
+            return Optional.empty();
 
         Optional<User> optionalOfUser = userDAO.findByUserName(userName);
 
@@ -74,4 +77,21 @@ public class ArticleServiceImpl implements ArticleService {
         return articleDAO.fetchLatestArticles();
     }
 
+    @Override
+    public Optional<CommentResponse> createCommentOnArticle(Integer articleId, CreateCommentRequest commentRequest) {
+
+        String userName = getCurrentUserInfo();
+        if (userName == null) {
+            return Optional.empty();
+        }
+        Optional<User> optionalOfUser = userDAO.findByUserName(userName);
+
+        CommentResponse createdComment = articleDAO.createCommentOnArticle(articleId, optionalOfUser.get().getId(),
+                optionalOfUser.get().getFirstName() + " " + optionalOfUser.get().getLastName(), commentRequest);
+                
+        if (createdComment == null) {
+            return Optional.empty();
+        }
+        return Optional.of(createdComment);
+    }
 }

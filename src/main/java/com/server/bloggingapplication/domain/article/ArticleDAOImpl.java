@@ -4,14 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.server.bloggingapplication.application.article.CommentResponse;
+import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
 import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 import com.server.bloggingapplication.domain.article.tag.TagDAO;
@@ -30,11 +31,14 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
-    private static final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
+    private final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
     private final String FETCH_ARTICLE_USING_ID_STMT = "SELECT * from articles where id = ?";
     private final String FIND_ARTICLE_ID_BY_AUTHORID_STMT = "SELECT id from articles WHERE author_id = ? and title = ?";
     private final String UPDATE_ARTICLE_STMT = "UPDATE articles SET title = ?, body = ? ,article_description = ? WHERE id = ?";
+
+    private final String CREATE_COMMENT_ON_ARTICLE_STMT = "INSERT INTO comments(body, user_id, article_id) VALUES (?,?,?)";
+    private final String GET_CREATED_TIMESTAMP_OF_CMNT_STMT = "SELECT created_at from comments WHERE id = ";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -64,7 +68,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 
             @Override
             public Article mapRow(ResultSet rs, int rowNum) throws SQLException {
-                // Integer id = rs.getInt("id");
+                Integer id = rs.getInt("id");
                 Integer authorId = rs.getInt("author_id");
                 String author = userDAO.getUserName(authorId);
                 String title = rs.getString("title");
@@ -73,7 +77,7 @@ public class ArticleDAOImpl implements ArticleDAO {
                 String createdAt = getFormattedDate(rs.getString("created_at"));
                 String updatedAt = getFormattedDate(rs.getString("updated_at"));
 
-                return new Article(title, author, description, articleBody, createdAt, updatedAt);
+                return new Article(id, title, author, description, articleBody, createdAt, updatedAt);
             }
 
         };
@@ -97,8 +101,7 @@ public class ArticleDAOImpl implements ArticleDAO {
                 @Override
                 public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
 
-                    PreparedStatement preparedStatement = con.prepareStatement(CREATE_ARTICLE_STMT,
-                            new String[] { "id" });
+                    PreparedStatement preparedStatement = con.prepareStatement(CREATE_ARTICLE_STMT,Statement.RETURN_GENERATED_KEYS);
                     preparedStatement.setInt(1, userId);
                     preparedStatement.setString(2, articleRequest.getTitle());
                     preparedStatement.setString(3, articleRequest.getDescription());
@@ -109,7 +112,6 @@ public class ArticleDAOImpl implements ArticleDAO {
 
             Integer publishedArticleId = keyHolder.getKey().intValue();
             Article publishedArticle = getArticleById(publishedArticleId);
-
             tagDAO.saveTags(publishedArticleId, articleRequest.getTags());
             return publishedArticle;
 
@@ -187,5 +189,37 @@ public class ArticleDAOImpl implements ArticleDAO {
             e.printStackTrace();
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId, String publisherName,
+            CreateCommentRequest commentRequest) {
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        String bodyOfComment = commentRequest.getBody();
+        try {
+            jdbcTemplate.update(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+
+                    PreparedStatement statement = con.prepareStatement(CREATE_COMMENT_ON_ARTICLE_STMT,
+                            Statement.RETURN_GENERATED_KEYS);
+                    statement.setString(1, bodyOfComment);
+                    statement.setInt(2, publisherId);
+                    statement.setInt(3, articleId);
+                    return statement;
+                }
+            }, keyHolder);
+
+            String createdAtTimeStamp = jdbcTemplate.queryForObject(GET_CREATED_TIMESTAMP_OF_CMNT_STMT + keyHolder.getKey().intValue(), String.class);
+
+            return new CommentResponse(keyHolder.getKey().intValue(), publisherName, bodyOfComment,
+                    getFormattedDate(createdAtTimeStamp));
+
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 }

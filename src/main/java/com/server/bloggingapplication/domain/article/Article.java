@@ -2,6 +2,7 @@ package com.server.bloggingapplication.domain.article;
 
 public class Article {
 
+    private Integer id;
     private String title;
     private String author;
     private String description;
@@ -9,7 +10,7 @@ public class Article {
     private String createdAt;
     private String updatedAt;
 
-    public Article(String title, String author, String description, String articleBody, String createdAt,
+    public Article(Integer id, String title, String author, String description, String articleBody, String createdAt,
             String updatedAt) {
         this.title = title;
         this.author = author;
@@ -17,6 +18,10 @@ public class Article {
         this.articleBody = articleBody;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getTitle() {

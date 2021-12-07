@@ -3,7 +3,8 @@ package com.server.bloggingapplication.application.article;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysql.cj.protocol.x.Ok;
+import javax.validation.Valid;
+
 import com.server.bloggingapplication.domain.article.Article;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +37,7 @@ public class ArticleController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Article> updateArticle(@RequestBody UpdateArticleRequest articleRequest ) {
+    public ResponseEntity<Article> updateArticle(@RequestBody UpdateArticleRequest articleRequest) {
 
         Optional<Article> optionalOfUpdatedArticle = articleService.updateArticle(articleRequest);
         if (optionalOfUpdatedArticle.isPresent()) {
@@ -53,5 +55,17 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(latestArticles);
+    }
+
+    @PostMapping("/{articleId}/comments")
+    public ResponseEntity<CommentResponse> postComment(@Valid 
+                                                        @RequestBody CreateCommentRequest comment, 
+                                                        @PathVariable("articleId") Integer articleId) {
+
+        Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleId, comment);
+        if (!generatedCommentResponse.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(generatedCommentResponse.get());
     }
 }
