@@ -63,7 +63,7 @@ CREATE TABLE article_favourites(
 
 CREATE TABLE comments(
     
-    id int PRIMARY KEY,
+    id int PRIMARY KEY AUTO_INCREMENT,
     body varchar(255) NOT NULL,
     user_id int NOT NULL,
     article_id int NOT NULL,
