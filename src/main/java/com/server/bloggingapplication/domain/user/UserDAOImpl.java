@@ -69,14 +69,14 @@ public class UserDAOImpl implements UserDAO {
 
     }
 
-    private boolean isValidUserData(CreateUserRequestDTO userToBeValidated) {
+    // private boolean isValidUserData(CreateUserRequestDTO userToBeValidated) {
 
-        Integer existingRecords = jdbcTemplate.queryForObject(COUNT_OCCURENCES_STMT, Integer.class,
-                new Object[] { userToBeValidated.getUsername(), userToBeValidated.getEmail() });
+    //     Integer existingRecords = jdbcTemplate.queryForObject(COUNT_OCCURENCES_STMT, Integer.class,
+    //             new Object[] { userToBeValidated.getUsername(), userToBeValidated.getEmail() });
 
-        return existingRecords == 0;
+    //     return existingRecords == 0;
 
-    }
+    // }
 
     @Override
     public Integer saveUser(CreateUserRequestDTO user) {
@@ -110,6 +110,26 @@ public class UserDAOImpl implements UserDAO {
             return -1;
         }
 
+    }
+
+    @Override
+    public boolean followUser(String followerUserName, String followeeUserName) {
+
+        Optional<User> optionalOfFollower = findByUserName(followerUserName);
+        Optional<User> optionalOfFollowee = findByUserName(followeeUserName);
+
+        if (!optionalOfFollowee.isPresent() || !optionalOfFollower.isPresent()) {
+            return false;
+        }
+        Integer followerId = optionalOfFollower.get().getId();
+        Integer followeeId = optionalOfFollowee.get().getId();
+
+        try {
+            jdbcTemplate.update("INSERT INTO user_followings VALUES (?, ?)", new Object[] { followeeId, followerId });
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
     }
 
     @Override

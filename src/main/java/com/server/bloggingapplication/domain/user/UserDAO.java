@@ -9,5 +9,6 @@ public interface UserDAO {
     Optional<User> findByUserName(String username);
     String getUserName(Integer userId);
     Integer saveUser(CreateUserRequestDTO user);
+    boolean followUser(String followerUserName, String followeeUserName);
 
 }

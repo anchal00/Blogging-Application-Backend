@@ -5,4 +5,6 @@ import com.server.bloggingapplication.application.user.CreateUserRequestDTO;
 public interface UserService {
     
     Integer createUser(CreateUserRequestDTO user);
+
+    boolean followUser(String followeeUserName);
 }
