@@ -88,7 +88,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         CommentResponse createdComment = articleDAO.createCommentOnArticle(articleId, optionalOfUser.get().getId(),
                 optionalOfUser.get().getFirstName() + " " + optionalOfUser.get().getLastName(), commentRequest);
-                
+
         if (createdComment == null) {
             return Optional.empty();
         }
@@ -97,9 +97,35 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public Optional<List<CommentResponse>> getCommentsForArticle(Integer articleId) {
-        
-        List<CommentResponse> comments =  articleDAO.fetchAllCommentsForArticle(articleId);
-        
+
+        List<CommentResponse> comments = articleDAO.fetchAllCommentsForArticle(articleId);
+
         return Optional.of(comments);
+    }
+
+    @Override
+    public boolean favouriteArticle(Integer articleId) {
+
+        String userName = getCurrentUserInfo();
+        if (userName == null) {
+            return false;
+        }
+
+        boolean markedFavourite = articleDAO.markArticleAsFavouriteForUser(articleId, userName);
+
+        return markedFavourite;
+    }
+
+    @Override
+    public boolean UnfavouriteArticle(Integer articleId) {
+
+        String userName = getCurrentUserInfo();
+        if (userName == null) {
+            return false;
+        }
+
+        boolean markedUnFavourite = articleDAO.markArticleAsUnFavouriteForUser(articleId, userName);
+
+        return markedUnFavourite;
     }
 }

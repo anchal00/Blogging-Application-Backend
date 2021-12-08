@@ -10,12 +10,14 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import com.server.bloggingapplication.application.article.CommentResponse;
 import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
 import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 import com.server.bloggingapplication.domain.article.tag.TagDAO;
+import com.server.bloggingapplication.domain.user.User;
 import com.server.bloggingapplication.domain.user.UserDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,10 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String GET_CREATED_TIMESTAMP_OF_CMNT_STMT = "SELECT created_at from comments WHERE id = ";
 
     private final String FETCH_COMMENTS_ON_ARTICLE_STMT = "SELECT * FROM comments WHERE article_id = ?";
+
+    private final String MARK_ARTICLE_AS_FAVOURITE_STMT = "INSERT INTO article_favourites VALUES(?, ?)";
+    private final String UNFAVOURITE_ARTICLE_STMT = "DELETE FROM article_favourites WHERE article_id = ? and user_id = ?";
+    private final String FIND_FAVOURITED_ARTICLE_STMT = "SELECT COUNT(*) FROM article_favourites WHERE article_id = ? and user_id = ?";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -267,6 +273,43 @@ public class ArticleDAOImpl implements ArticleDAO {
         } catch (DataAccessException e) {
             e.printStackTrace();
             return Collections.emptyList();
+        }
+
+    }
+
+    @Override
+    public boolean markArticleAsFavouriteForUser(Integer articleId, String userName) {
+
+        Optional<User> currentUser = userDAO.findByUserName(userName);
+        if (!currentUser.isPresent()) {
+            return false;
+        }
+        try {
+            jdbcTemplate.update(MARK_ARTICLE_AS_FAVOURITE_STMT, new Object[]{articleId, currentUser.get().getId()});
+            return true;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    @Override
+    public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName) {
+        
+        Optional<User> currentUser = userDAO.findByUserName(userName);
+        if (!currentUser.isPresent()) {
+            return false;
+        }
+        try {
+            Integer exists = jdbcTemplate.queryForObject(FIND_FAVOURITED_ARTICLE_STMT,new Object[]{articleId, currentUser.get().getId()},Integer.class);
+            if (exists == 0) {
+                return false;
+            }
+
+            jdbcTemplate.update(UNFAVOURITE_ARTICLE_STMT, new Object[]{articleId, currentUser.get().getId()});
+            return true;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

@@ -14,6 +14,8 @@ public interface ArticleDAO {
     public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest);
     public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId ,String publisherName,CreateCommentRequest commentRequest);
     public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId);
+    public boolean markArticleAsFavouriteForUser(Integer articleId, String userName);
+    public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName);
     
     
 }

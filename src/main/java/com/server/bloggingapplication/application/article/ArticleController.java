@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -73,5 +74,24 @@ public class ArticleController {
 
         Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleId);
         return ResponseEntity.status(HttpStatus.OK).body(optionalOfCommentsList.orElse(null));
+    }
+
+    @PostMapping("/{articleId}/favourite")
+    public ResponseEntity<Boolean> markArticleAsFavourite(@PathVariable("articleId") Integer articleId) {
+
+        boolean isFavourited = articleService.favouriteArticle(articleId);
+        if (isFavourited) {
+            return ResponseEntity.status(HttpStatus.OK).body(isFavourited);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+    }
+    @PostMapping("/{articleId}/unfavourite")
+    public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleId") Integer articleId) {
+
+        boolean isUnFavourited = articleService.UnfavouriteArticle(articleId);
+        if (isUnFavourited) {
+            return ResponseEntity.status(HttpStatus.OK).body(isUnFavourited);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
 }
