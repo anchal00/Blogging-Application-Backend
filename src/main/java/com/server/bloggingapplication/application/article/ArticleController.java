@@ -58,14 +58,20 @@ public class ArticleController {
     }
 
     @PostMapping("/{articleId}/comments")
-    public ResponseEntity<CommentResponse> postComment(@Valid 
-                                                        @RequestBody CreateCommentRequest comment, 
-                                                        @PathVariable("articleId") Integer articleId) {
+    public ResponseEntity<CommentResponse> postComment(@Valid @RequestBody CreateCommentRequest comment,
+            @PathVariable("articleId") Integer articleId) {
 
         Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleId, comment);
         if (!generatedCommentResponse.isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(generatedCommentResponse.get());
+    }
+
+    @GetMapping("/{articleId}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(@PathVariable("articleId") Integer articleId) {
+
+        Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleId);
+        return ResponseEntity.status(HttpStatus.OK).body(optionalOfCommentsList.orElse(null));
     }
 }

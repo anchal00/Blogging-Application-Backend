@@ -14,4 +14,5 @@ public interface ArticleService {
     public Optional<Article> updateArticle(UpdateArticleRequest articleRequest);
     public List<Article> getRecentGlobalArticles();
     public Optional<CommentResponse> createCommentOnArticle(Integer articleId, CreateCommentRequest commentRequest);
+    public Optional<List<CommentResponse>> getCommentsForArticle(Integer articleId);
 }

@@ -40,6 +40,8 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String CREATE_COMMENT_ON_ARTICLE_STMT = "INSERT INTO comments(body, user_id, article_id) VALUES (?,?,?)";
     private final String GET_CREATED_TIMESTAMP_OF_CMNT_STMT = "SELECT created_at from comments WHERE id = ";
 
+    private final String FETCH_COMMENTS_ON_ARTICLE_STMT = "SELECT * FROM comments WHERE article_id = ?";
+
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -84,6 +86,25 @@ public class ArticleDAOImpl implements ArticleDAO {
         return rowMapper;
     }
 
+    private RowMapper<CommentResponse> commentRowMapper() {
+        RowMapper<CommentResponse> rowMapper = new RowMapper<CommentResponse>() {
+            @Override
+            public CommentResponse mapRow(ResultSet rs, int rowNum) throws SQLException {
+
+                Integer commentId = rs.getInt(1);
+                String body = rs.getString(2);
+                Integer userId = rs.getInt(3);
+                String author = userDAO.getUserName(userId);
+                Integer articleId = rs.getInt(4);
+                String createdAt = getFormattedDate(rs.getString(5));
+
+                CommentResponse comment = new CommentResponse(commentId, userId, articleId, author, body, createdAt);
+                return comment;
+            }
+        };
+        return rowMapper;
+    }
+
     private Article getArticleById(Integer articleId) {
 
         return jdbcTemplate.queryForObject(FETCH_ARTICLE_USING_ID_STMT, articleRowMapper(), new Object[] { articleId });
@@ -101,7 +122,8 @@ public class ArticleDAOImpl implements ArticleDAO {
                 @Override
                 public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
 
-                    PreparedStatement preparedStatement = con.prepareStatement(CREATE_ARTICLE_STMT,Statement.RETURN_GENERATED_KEYS);
+                    PreparedStatement preparedStatement = con.prepareStatement(CREATE_ARTICLE_STMT,
+                            Statement.RETURN_GENERATED_KEYS);
                     preparedStatement.setInt(1, userId);
                     preparedStatement.setString(2, articleRequest.getTitle());
                     preparedStatement.setString(3, articleRequest.getDescription());
@@ -211,9 +233,11 @@ public class ArticleDAOImpl implements ArticleDAO {
                 }
             }, keyHolder);
 
-            String createdAtTimeStamp = jdbcTemplate.queryForObject(GET_CREATED_TIMESTAMP_OF_CMNT_STMT + keyHolder.getKey().intValue(), String.class);
+            String createdAtTimeStamp = jdbcTemplate
+                    .queryForObject(GET_CREATED_TIMESTAMP_OF_CMNT_STMT + keyHolder.getKey().intValue(), String.class);
 
-            return new CommentResponse(keyHolder.getKey().intValue(), publisherName, bodyOfComment,
+            return new CommentResponse(keyHolder.getKey().intValue(), publisherId, articleId, publisherName,
+                    bodyOfComment,
                     getFormattedDate(createdAtTimeStamp));
 
         } catch (DataAccessException e) {
@@ -221,5 +245,28 @@ public class ArticleDAOImpl implements ArticleDAO {
             return null;
         }
 
+    }
+
+    @Override
+    public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId) {
+
+        try {
+
+            List<CommentResponse> comments = jdbcTemplate.query(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+
+                    PreparedStatement statement = con.prepareStatement(FETCH_COMMENTS_ON_ARTICLE_STMT);
+                    statement.setInt(1, articleId);
+                    return statement;
+                }
+            }, commentRowMapper());
+
+            return comments;
+
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
     }
 }

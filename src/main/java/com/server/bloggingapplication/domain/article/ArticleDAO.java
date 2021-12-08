@@ -13,6 +13,7 @@ public interface ArticleDAO {
     public List<Article> fetchLatestArticles();
     public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest);
     public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId ,String publisherName,CreateCommentRequest commentRequest);
+    public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId);
     
     
 }

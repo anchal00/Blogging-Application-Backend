@@ -94,4 +94,12 @@ public class ArticleServiceImpl implements ArticleService {
         }
         return Optional.of(createdComment);
     }
+
+    @Override
+    public Optional<List<CommentResponse>> getCommentsForArticle(Integer articleId) {
+        
+        List<CommentResponse> comments =  articleDAO.fetchAllCommentsForArticle(articleId);
+        
+        return Optional.of(comments);
+    }
 }
