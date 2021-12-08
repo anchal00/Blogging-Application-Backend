@@ -33,6 +33,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
+    private static final String FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT = "SELECT * FROM articles WHERE author_id IN (SELECT followeeId FROM user_followings WHERE followerId = ?)";
     private final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
     private final String FETCH_ARTICLE_USING_ID_STMT = "SELECT * from articles where id = ?";
@@ -311,5 +312,26 @@ public class ArticleDAOImpl implements ArticleDAO {
             e.printStackTrace();
             return false;
         }
+    }
+    @Override
+    public List<Article> fetchArticlesFromFollowedUsers(String userName) {
+        
+        Optional<User> optionalOfFollower =  userDAO.findByUserName(userName);
+        if(!optionalOfFollower.isPresent()) {
+            return Collections.emptyList();
+        }
+
+        Integer followerId = optionalOfFollower.get().getId();
+        List<Article> articlesPublishedByUserFollowings = jdbcTemplate.query(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                
+                PreparedStatement statement = con.prepareStatement(FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT);
+                statement.setInt(1, followerId);
+                return statement;
+            }
+        }, articleRowMapper());
+
+        return articlesPublishedByUserFollowings;
     }
 }

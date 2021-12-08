@@ -10,12 +10,20 @@ import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 public interface ArticleDAO {
 
     public Article createArticle(Integer userId, PostArticleRequest articleRequest);
+
     public List<Article> fetchLatestArticles();
+
     public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest);
-    public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId ,String publisherName,CreateCommentRequest commentRequest);
+
+    public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId, String publisherName,
+            CreateCommentRequest commentRequest);
+
     public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId);
+
     public boolean markArticleAsFavouriteForUser(Integer articleId, String userName);
+
     public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName);
-    
-    
+
+    public List<Article> fetchArticlesFromFollowedUsers(String userName);
+
 }

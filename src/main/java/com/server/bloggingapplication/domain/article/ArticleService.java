@@ -17,4 +17,5 @@ public interface ArticleService {
     public Optional<List<CommentResponse>> getCommentsForArticle(Integer articleId);
     public boolean favouriteArticle(Integer articleId);
     public boolean UnfavouriteArticle(Integer articleId);
+    public List<Article> getHomeFeedArticles();
 }

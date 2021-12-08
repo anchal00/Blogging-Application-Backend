@@ -12,6 +12,7 @@ public class Article {
 
     public Article(Integer id, String title, String author, String description, String articleBody, String createdAt,
             String updatedAt) {
+        this.id = id;
         this.title = title;
         this.author = author;
         this.description = description;
@@ -47,5 +48,4 @@ public class Article {
     public String getUpdatedAt() {
         return updatedAt;
     }
-
 }
