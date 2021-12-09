@@ -9,9 +9,9 @@ import com.server.bloggingapplication.application.article.UpdateArticleRequest;
 
 public interface ArticleDAO {
 
-    public Article createArticle(Integer userId, PostArticleRequest articleRequest);
+    public ArticleResponse createArticle(Integer userId, PostArticleRequest articleRequest);
 
-    public List<Article> fetchLatestArticles();
+    public List<ArticleResponse> fetchLatestArticles();
 
     public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest);
 
@@ -24,6 +24,8 @@ public interface ArticleDAO {
 
     public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName);
 
-    public List<Article> fetchArticlesFromFollowedUsers(String userName);
+    public List<ArticleResponse> fetchArticlesFromFollowedUsers(String userName);
+
+    public List<ArticleResponse> fetchArticlesByTag(String tag);
 
 }

@@ -28,7 +28,7 @@ public class ArticleServiceImpl implements ArticleService {
     private ArticleDAO articleDAO;
 
     @Override
-    public Optional<Article> createArticle(@RequestBody PostArticleRequest createArticleRequest) {
+    public Optional<ArticleResponse> createArticle(@RequestBody PostArticleRequest createArticleRequest) {
         String userName = getCurrentUserInfo();
 
         Optional<User> optionalOfUser = userDAO.findByUserName(userName);
@@ -39,7 +39,7 @@ public class ArticleServiceImpl implements ArticleService {
 
         Integer userId = optionalOfUser.get().getId();
 
-        Article createdArticle = articleDAO.createArticle(userId, createArticleRequest);
+        ArticleResponse createdArticle = articleDAO.createArticle(userId, createArticleRequest);
 
         return Optional.of(createdArticle);
     }
@@ -75,7 +75,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getRecentGlobalArticles() {
+    public List<ArticleResponse> getRecentGlobalArticles() {
         return articleDAO.fetchLatestArticles();
     }
 
@@ -132,14 +132,21 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getHomeFeedArticles() {
+    public List<ArticleResponse> getHomeFeedArticles() {
 
         String userName = getCurrentUserInfo();
         if (userName == null) {
             return null;
         }
-        List<Article> articles = articleDAO.fetchArticlesFromFollowedUsers(userName);
+        List<ArticleResponse> articles = articleDAO.fetchArticlesFromFollowedUsers(userName);
 
+        return articles;
+    }
+
+    @Override
+    public List<ArticleResponse> getArticlesWithTag(String tag) {
+        
+        List<ArticleResponse> articles = articleDAO.fetchArticlesByTag(tag);
         return articles;
     }
 }

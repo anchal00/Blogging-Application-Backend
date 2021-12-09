@@ -7,15 +7,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.server.bloggingapplication.application.article.CommentResponse;
 import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
 import com.server.bloggingapplication.application.article.UpdateArticleRequest;
+import com.server.bloggingapplication.domain.article.tag.Tag;
 import com.server.bloggingapplication.domain.article.tag.TagDAO;
 import com.server.bloggingapplication.domain.user.User;
 import com.server.bloggingapplication.domain.user.UserDAO;
@@ -48,6 +52,9 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String MARK_ARTICLE_AS_FAVOURITE_STMT = "INSERT INTO article_favourites VALUES(?, ?)";
     private final String UNFAVOURITE_ARTICLE_STMT = "DELETE FROM article_favourites WHERE article_id = ? and user_id = ?";
     private final String FIND_FAVOURITED_ARTICLE_STMT = "SELECT COUNT(*) FROM article_favourites WHERE article_id = ? and user_id = ?";
+
+    private final String FETCH_ARTICLES_BY_TAGS_STMT = "SELECT * FROM articles WHERE articles.id IN (select article_id from  articles_tags LEFT JOIN tags ON articles_tags.tag_id = tags.id where tag = ?)";
+    private final String GET_TAGS_FOR_ARTICLE_STMT = "SELECT * FROM tags WHERE id IN (SELECT tag_id FROM articles_tags WHERE article_id = ?)";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -118,7 +125,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public Article createArticle(Integer userId, PostArticleRequest articleRequest) {
+    public ArticleResponse createArticle(Integer userId, PostArticleRequest articleRequest) {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -141,8 +148,12 @@ public class ArticleDAOImpl implements ArticleDAO {
 
             Integer publishedArticleId = keyHolder.getKey().intValue();
             Article publishedArticle = getArticleById(publishedArticleId);
+
+            ArticleResponse articleResponse = new ArticleResponse(publishedArticle, articleRequest.getTags());
+
             tagDAO.saveTags(publishedArticleId, articleRequest.getTags());
-            return publishedArticle;
+
+            return articleResponse;
 
         } catch (DataAccessException e) {
             System.out.println("Article with same Title already exists");
@@ -199,7 +210,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public List<Article> fetchLatestArticles() {
+    public List<ArticleResponse> fetchLatestArticles() {
 
         List<Article> recentArticleList = null;
 
@@ -213,11 +224,48 @@ public class ArticleDAOImpl implements ArticleDAO {
                 }
             }, articleRowMapper());
 
-            return recentArticleList;
+            return populateTagsForArticle(recentArticleList);
         } catch (DataAccessException e) {
             e.printStackTrace();
             return Collections.emptyList();
         }
+    }
+
+    private List<ArticleResponse> populateTagsForArticle(List<Article> articles) {
+
+        List<ArticleResponse> articleResponses = new ArrayList<>();
+
+        for (Article article : articles) {
+            List<Tag> tags = jdbcTemplate.query(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+
+                    PreparedStatement statement = con.prepareStatement(GET_TAGS_FOR_ARTICLE_STMT);
+                    statement.setInt(1, article.getId());
+                    return statement;
+                }
+            }, tagRowMapper());
+            Set<String> allTags = new HashSet<>();
+            for (Tag tag : tags) {
+                allTags.add(tag.getValue());
+            }
+            articleResponses.add(new ArticleResponse(article,allTags));
+        }
+        return articleResponses;
+
+    }
+
+    private RowMapper<Tag> tagRowMapper() {
+
+        RowMapper<Tag> rowMapper = new RowMapper<Tag>() {
+            @Override
+            public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Integer id = rs.getInt("id");
+                String value = rs.getString("tag");
+                return new Tag(id, value);
+            }
+        };
+        return rowMapper;
     }
 
     @Override
@@ -286,52 +334,73 @@ public class ArticleDAOImpl implements ArticleDAO {
             return false;
         }
         try {
-            jdbcTemplate.update(MARK_ARTICLE_AS_FAVOURITE_STMT, new Object[]{articleId, currentUser.get().getId()});
+            jdbcTemplate.update(MARK_ARTICLE_AS_FAVOURITE_STMT, new Object[] { articleId, currentUser.get().getId() });
             return true;
         } catch (DataAccessException e) {
             e.printStackTrace();
             return false;
         }
     }
+
     @Override
     public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName) {
-        
+
         Optional<User> currentUser = userDAO.findByUserName(userName);
         if (!currentUser.isPresent()) {
             return false;
         }
         try {
-            Integer exists = jdbcTemplate.queryForObject(FIND_FAVOURITED_ARTICLE_STMT,new Object[]{articleId, currentUser.get().getId()},Integer.class);
+            Integer exists = jdbcTemplate.queryForObject(FIND_FAVOURITED_ARTICLE_STMT,
+                    new Object[] { articleId, currentUser.get().getId() }, Integer.class);
             if (exists == 0) {
                 return false;
             }
 
-            jdbcTemplate.update(UNFAVOURITE_ARTICLE_STMT, new Object[]{articleId, currentUser.get().getId()});
+            jdbcTemplate.update(UNFAVOURITE_ARTICLE_STMT, new Object[] { articleId, currentUser.get().getId() });
             return true;
         } catch (DataAccessException e) {
             e.printStackTrace();
             return false;
         }
     }
+
     @Override
-    public List<Article> fetchArticlesFromFollowedUsers(String userName) {
-        
-        Optional<User> optionalOfFollower =  userDAO.findByUserName(userName);
-        if(!optionalOfFollower.isPresent()) {
+    public List<ArticleResponse> fetchArticlesFromFollowedUsers(String userName) {
+
+        Optional<User> optionalOfFollower = userDAO.findByUserName(userName);
+        if (!optionalOfFollower.isPresent()) {
             return Collections.emptyList();
         }
-
         Integer followerId = optionalOfFollower.get().getId();
         List<Article> articlesPublishedByUserFollowings = jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                
+
                 PreparedStatement statement = con.prepareStatement(FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT);
                 statement.setInt(1, followerId);
                 return statement;
             }
         }, articleRowMapper());
+        return populateTagsForArticle(articlesPublishedByUserFollowings);
+    }
 
-        return articlesPublishedByUserFollowings;
+    @Override
+    public List<ArticleResponse> fetchArticlesByTag(String tag) {
+
+        try {
+            List<Article> articlesByTag = jdbcTemplate.query(new PreparedStatementCreator() {
+                @Override
+                public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+
+                    PreparedStatement statement = con.prepareStatement(FETCH_ARTICLES_BY_TAGS_STMT);
+                    statement.setString(1, tag);
+                    return statement;
+                }
+            }, articleRowMapper());
+            return populateTagsForArticle(articlesByTag);
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

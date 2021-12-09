@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.server.bloggingapplication.domain.article.Article;
+import com.server.bloggingapplication.domain.article.ArticleResponse;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,9 @@ public class HomeController {
     private ArticleService articleService;
 
     @GetMapping("/homefeed")
-    public ResponseEntity<Map<String,List<Article>>> getArticleFromHomeFeed() {
+    public ResponseEntity<Map<String,List<ArticleResponse>>> getArticleFromHomeFeed() {
 
-        List<Article> articlesOnHomeFeed = articleService.getHomeFeedArticles();
+        List<ArticleResponse> articlesOnHomeFeed = articleService.getHomeFeedArticles();
         if(articlesOnHomeFeed == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
@@ -32,9 +33,9 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<Article>> getAllRecentArticles() {
+    public ResponseEntity<List<ArticleResponse>> getAllRecentArticles() {
 
-        List<Article> latestArticles = articleService.getRecentGlobalArticles();
+        List<ArticleResponse> latestArticles = articleService.getRecentGlobalArticles();
         if (latestArticles == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
