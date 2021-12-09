@@ -96,15 +96,24 @@ public class ArticleController {
      * TODO:
      * 
      * Implement feature for filtering of articles based on -
-     * 1. tags 
      * 2. authors
      * 3. favourited by user
      */
 
-    @GetMapping("")
+    @GetMapping(params = {"tag"})
     public ResponseEntity<List<ArticleResponse>> getArticlesHavingTags(@RequestParam("tag") String tag) {
 
         List<ArticleResponse> allArticles = articleService.getArticlesWithTag(tag);
+        if (allArticles == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(allArticles);
+    }
+
+    @GetMapping(params = {"author"})
+    public ResponseEntity<List<ArticleResponse>> getArticlesFromAuthor(@RequestParam("author") String authorUserName) {
+
+        List<ArticleResponse> allArticles = articleService.getArticlesFromAuthor(authorUserName);
         if (allArticles == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }

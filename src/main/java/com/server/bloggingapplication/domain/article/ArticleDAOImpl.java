@@ -37,6 +37,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
+    private static final String FETCH_ARTICLE_THROUGH_USERNAME = "SELECT * FROM articles WHERE author_id = (SELECT id FROM users WHERE username = ?)";
     private static final String FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT = "SELECT * FROM articles WHERE author_id IN (SELECT followeeId FROM user_followings WHERE followerId = ?)";
     private final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
@@ -402,5 +403,19 @@ public class ArticleDAOImpl implements ArticleDAO {
             e.printStackTrace();
             return null;
         }
+    }
+    @Override
+    public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName) {
+        
+        List<Article> articles = jdbcTemplate.query(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement statement = con.prepareStatement(FETCH_ARTICLE_THROUGH_USERNAME);
+                statement.setString(1, authorUserName);
+                return statement;
+            }
+        }, articleRowMapper());
+
+        return populateTagsForArticle(articles);
     }
 }

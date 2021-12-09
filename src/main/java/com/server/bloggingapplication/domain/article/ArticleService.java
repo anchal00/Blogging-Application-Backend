@@ -19,4 +19,5 @@ public interface ArticleService {
     public boolean UnfavouriteArticle(Integer articleId);
     public List<ArticleResponse> getHomeFeedArticles();
     public List<ArticleResponse> getArticlesWithTag(String tag);
+    public List<ArticleResponse> getArticlesFromAuthor(String authorUserName);
 }

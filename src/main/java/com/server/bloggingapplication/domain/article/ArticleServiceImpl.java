@@ -145,8 +145,14 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public List<ArticleResponse> getArticlesWithTag(String tag) {
-        
+
         List<ArticleResponse> articles = articleDAO.fetchArticlesByTag(tag);
+        return articles;
+    }
+
+    @Override
+    public List<ArticleResponse> getArticlesFromAuthor(String authorUserName) {
+        List<ArticleResponse> articles = articleDAO.fetchArticlesByAuthor(authorUserName);
         return articles;
     }
 }

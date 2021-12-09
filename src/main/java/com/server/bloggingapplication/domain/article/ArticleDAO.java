@@ -28,4 +28,6 @@ public interface ArticleDAO {
 
     public List<ArticleResponse> fetchArticlesByTag(String tag);
 
+    public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName);
+
 }
