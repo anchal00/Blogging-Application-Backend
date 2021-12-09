@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -46,16 +45,6 @@ public class ArticleController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
-    }
-
-    @GetMapping("")
-    public ResponseEntity<List<Article>> getAllRecentArticles() {
-
-        List<Article> latestArticles = articleService.getRecentGlobalArticles();
-        if (latestArticles == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(latestArticles);
     }
 
     @PostMapping("/{articleId}/comments")

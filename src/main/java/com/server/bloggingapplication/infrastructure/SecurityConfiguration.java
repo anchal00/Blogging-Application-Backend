@@ -29,7 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/v2/api-docs", 
             "/webjars/**" ,
             "/blogapp/users/signup",
-            "/blogapp/articles"
+            "/blogapp/"
         };
 
     @Override

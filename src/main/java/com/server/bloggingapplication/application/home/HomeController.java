@@ -30,4 +30,14 @@ public class HomeController {
         
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("Articles from your followings", articlesOnHomeFeed));
     }
+
+    @GetMapping("/")
+    public ResponseEntity<List<Article>> getAllRecentArticles() {
+
+        List<Article> latestArticles = articleService.getRecentGlobalArticles();
+        if (latestArticles == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(latestArticles);
+    }
 }
