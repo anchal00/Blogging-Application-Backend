@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import com.server.bloggingapplication.domain.article.Article;
+import com.server.bloggingapplication.domain.article.ArticleResponse;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,10 +28,15 @@ public class ArticleController {
     @Autowired
     private ArticleService articleService;
 
+    /**
+     * TODO :
+     * 
+     * Implement GET methods for articles
+     */
     @PostMapping("/")
-    public ResponseEntity<Article> publishArticle(@RequestBody PostArticleRequest articleRequest) {
+    public ResponseEntity<ArticleResponse> publishArticle(@RequestBody PostArticleRequest articleRequest) {
 
-        Optional<Article> optionalOfCreatedArticle = articleService.createArticle(articleRequest);
+        Optional<ArticleResponse> optionalOfCreatedArticle = articleService.createArticle(articleRequest);
         if (optionalOfCreatedArticle.isEmpty()) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
@@ -74,6 +81,7 @@ public class ArticleController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
+
     @PostMapping("/{articleId}/unfavourite")
     public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleId") Integer articleId) {
 
@@ -82,5 +90,24 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.OK).body(isUnFavourited);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+    }
+
+    /**
+     * TODO:
+     * 
+     * Implement feature for filtering of articles based on -
+     * 1. tags 
+     * 2. authors
+     * 3. favourited by user
+     */
+
+    @GetMapping("")
+    public ResponseEntity<List<ArticleResponse>> getArticlesHavingTags(@RequestParam("tag") String tag) {
+
+        List<ArticleResponse> allArticles = articleService.getArticlesWithTag(tag);
+        if (allArticles == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(allArticles);
     }
 }
