@@ -30,7 +30,6 @@ public class ArticleController {
 
     /**
      * TODO :
-     * 
      * Implement GET methods for articles
      */
     @PostMapping("/")
@@ -96,11 +95,10 @@ public class ArticleController {
      * TODO:
      * 
      * Implement feature for filtering of articles based on -
-     * 2. authors
      * 3. favourited by user
      */
 
-    @GetMapping(params = {"tag"})
+    @GetMapping(params = { "tag" })
     public ResponseEntity<List<ArticleResponse>> getArticlesHavingTags(@RequestParam("tag") String tag) {
 
         List<ArticleResponse> allArticles = articleService.getArticlesWithTag(tag);
@@ -110,7 +108,7 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.OK).body(allArticles);
     }
 
-    @GetMapping(params = {"author"})
+    @GetMapping(params = { "author" })
     public ResponseEntity<List<ArticleResponse>> getArticlesFromAuthor(@RequestParam("author") String authorUserName) {
 
         List<ArticleResponse> allArticles = articleService.getArticlesFromAuthor(authorUserName);
@@ -118,5 +116,16 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.status(HttpStatus.OK).body(allArticles);
+    }
+
+    @GetMapping(params = { "favourited" })
+    public ResponseEntity<List<ArticleResponse>> getArticlesFavouritedByUser(
+            @RequestParam("favourited") String userName) {
+
+        List<ArticleResponse> articlesFavouritedByUser = articleService.getArticlesFavouritedByUser(userName);
+        if (articlesFavouritedByUser == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(articlesFavouritedByUser);
     }
 }

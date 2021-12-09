@@ -3,7 +3,6 @@ package com.server.bloggingapplication.application.home;
 import java.util.List;
 import java.util.Map;
 
-import com.server.bloggingapplication.domain.article.Article;
 import com.server.bloggingapplication.domain.article.ArticleResponse;
 import com.server.bloggingapplication.domain.article.ArticleService;
 

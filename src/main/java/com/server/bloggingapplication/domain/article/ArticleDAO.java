@@ -30,4 +30,6 @@ public interface ArticleDAO {
 
     public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName);
 
+    public List<ArticleResponse> fetchArticlesFavouritedByUser(String userName);
+
 }

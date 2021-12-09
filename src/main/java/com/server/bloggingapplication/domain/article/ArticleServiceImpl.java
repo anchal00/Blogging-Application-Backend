@@ -1,10 +1,8 @@
 package com.server.bloggingapplication.domain.article;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud.Collection;
 import com.server.bloggingapplication.application.article.CommentResponse;
 import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
@@ -153,6 +151,12 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<ArticleResponse> getArticlesFromAuthor(String authorUserName) {
         List<ArticleResponse> articles = articleDAO.fetchArticlesByAuthor(authorUserName);
+        return articles;
+    }
+
+    @Override
+    public List<ArticleResponse> getArticlesFavouritedByUser(String userName) {
+        List<ArticleResponse> articles = articleDAO.fetchArticlesFavouritedByUser(userName);
         return articles;
     }
 }

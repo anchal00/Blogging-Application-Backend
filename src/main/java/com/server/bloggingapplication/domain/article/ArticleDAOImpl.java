@@ -37,8 +37,9 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
-    private static final String FETCH_ARTICLE_THROUGH_USERNAME = "SELECT * FROM articles WHERE author_id = (SELECT id FROM users WHERE username = ?)";
-    private static final String FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT = "SELECT * FROM articles WHERE author_id IN (SELECT followeeId FROM user_followings WHERE followerId = ?)";
+    private final String FETCH_ARTICLES_FAVOURITED_BY_USER_STMT = "SELECT * FROM articles WHERE id IN (SELECT article_id FROM article_favourites WHERE user_id = (SELECT id FROM users WHERE username = ?))";
+    private final String FETCH_ARTICLE_THROUGH_USERNAME = "SELECT * FROM articles WHERE author_id = (SELECT id FROM users WHERE username = ?)";
+    private final String FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT = "SELECT * FROM articles WHERE author_id IN (SELECT followeeId FROM user_followings WHERE followerId = ?)";
     private final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
     private final String FETCH_ARTICLE_USING_ID_STMT = "SELECT * from articles where id = ?";
@@ -54,7 +55,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String UNFAVOURITE_ARTICLE_STMT = "DELETE FROM article_favourites WHERE article_id = ? and user_id = ?";
     private final String FIND_FAVOURITED_ARTICLE_STMT = "SELECT COUNT(*) FROM article_favourites WHERE article_id = ? and user_id = ?";
 
-    private final String FETCH_ARTICLES_BY_TAGS_STMT = "SELECT * FROM articles WHERE articles.id IN (select article_id from  articles_tags LEFT JOIN tags ON articles_tags.tag_id = tags.id where tag = ?)";
+    private final String FETCH_ARTICLES_BY_TAGS_STMT = "SELECT * FROM articles WHERE articles.id IN (SELECT article_id SELECT articles_tags LEFT JOIN tags ON articles_tags.tag_id = tags.id WHERE tag = ?)";
     private final String GET_TAGS_FOR_ARTICLE_STMT = "SELECT * FROM tags WHERE id IN (SELECT tag_id FROM articles_tags WHERE article_id = ?)";
 
     @Autowired
@@ -250,7 +251,7 @@ public class ArticleDAOImpl implements ArticleDAO {
             for (Tag tag : tags) {
                 allTags.add(tag.getValue());
             }
-            articleResponses.add(new ArticleResponse(article,allTags));
+            articleResponses.add(new ArticleResponse(article, allTags));
         }
         return articleResponses;
 
@@ -404,9 +405,10 @@ public class ArticleDAOImpl implements ArticleDAO {
             return null;
         }
     }
+
     @Override
     public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName) {
-        
+
         List<Article> articles = jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -417,5 +419,21 @@ public class ArticleDAOImpl implements ArticleDAO {
         }, articleRowMapper());
 
         return populateTagsForArticle(articles);
+    }
+
+    @Override
+    public List<ArticleResponse> fetchArticlesFavouritedByUser(String userName) {
+
+        List<Article> articlesFavouritedByUser = jdbcTemplate.query(new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                PreparedStatement statement = con.prepareStatement(
+                        FETCH_ARTICLES_FAVOURITED_BY_USER_STMT);
+                statement.setString(1, userName);
+                return statement;
+            }
+        }, articleRowMapper());
+
+        return populateTagsForArticle(articlesFavouritedByUser);
     }
 }

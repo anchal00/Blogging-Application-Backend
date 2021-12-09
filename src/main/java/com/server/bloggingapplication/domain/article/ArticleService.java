@@ -20,4 +20,5 @@ public interface ArticleService {
     public List<ArticleResponse> getHomeFeedArticles();
     public List<ArticleResponse> getArticlesWithTag(String tag);
     public List<ArticleResponse> getArticlesFromAuthor(String authorUserName);
+    public List<ArticleResponse> getArticlesFavouritedByUser(String userName);
 }
