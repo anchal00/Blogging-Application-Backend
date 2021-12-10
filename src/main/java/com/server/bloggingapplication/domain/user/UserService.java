@@ -7,4 +7,6 @@ public interface UserService {
     Integer createUser(CreateUserRequestDTO user);
 
     boolean followUser(String followeeUserName);
+
+    boolean unfollowUser(String followeeUserName);
 }

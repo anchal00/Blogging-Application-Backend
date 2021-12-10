@@ -23,10 +23,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserDAOImpl implements UserDAO {
 
+    private static final String UNFOLLOW_USER_STMT = "DELETE FROM user_followings VALUES (?, ?)";
+
+    private static final String FOLLOW_USER_STMT = "INSERT INTO user_followings VALUES (?, ?)";
+
+    private static final String GET_FULL_NAME_OF_USER_STMT = "SELECT CONCAT(firstname,' ',lastname) AS fullname from users WHERE id = ";
+
     private final String INSERT_STMT = "INSERT INTO users(firstname, lastname , username, bio, email, passwd) "
             + "VALUES (?, ? , ? , ?, ? , ?)";
-
-    private final String COUNT_OCCURENCES_STMT = "SELECT COUNT(*) FROM users WHERE username = ? OR email = ? ";
 
     private final String FIND_BY_USERNAME_STMT = "SELECT * FROM users WHERE username = ? ";
 
@@ -68,23 +72,8 @@ public class UserDAOImpl implements UserDAO {
         return rowMapper;
 
     }
-
-    // private boolean isValidUserData(CreateUserRequestDTO userToBeValidated) {
-
-    //     Integer existingRecords = jdbcTemplate.queryForObject(COUNT_OCCURENCES_STMT, Integer.class,
-    //             new Object[] { userToBeValidated.getUsername(), userToBeValidated.getEmail() });
-
-    //     return existingRecords == 0;
-
-    // }
-
     @Override
     public Integer saveUser(CreateUserRequestDTO user) {
-
-        // if (isValidUserData(user) == false) {
-        // return -1;
-        // }
-
         try {
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(new PreparedStatementCreator() {
@@ -125,7 +114,27 @@ public class UserDAOImpl implements UserDAO {
         Integer followeeId = optionalOfFollowee.get().getId();
 
         try {
-            jdbcTemplate.update("INSERT INTO user_followings VALUES (?, ?)", new Object[] { followeeId, followerId });
+            jdbcTemplate.update(FOLLOW_USER_STMT, new Object[] { followeeId, followerId });
+            return true;
+        } catch (DataAccessException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean unfollowUser(String followerUserName, String followeeUserName) {
+
+        Optional<User> optionalOfFollower = findByUserName(followerUserName);
+        Optional<User> optionalOfFollowee = findByUserName(followeeUserName);
+
+        if (!optionalOfFollowee.isPresent() || !optionalOfFollower.isPresent()) {
+            return false;
+        }
+        Integer followerId = optionalOfFollower.get().getId();
+        Integer followeeId = optionalOfFollowee.get().getId();
+
+        try {
+            jdbcTemplate.update(UNFOLLOW_USER_STMT, new Object[] { followeeId, followerId });
             return true;
         } catch (DataAccessException e) {
             return false;
@@ -136,7 +145,7 @@ public class UserDAOImpl implements UserDAO {
     public String getUserName(Integer userId) {
 
         return jdbcTemplate.queryForObject(
-                "SELECT CONCAT(firstname,' ',lastname) AS fullname from users WHERE id = " + userId, String.class);
+                GET_FULL_NAME_OF_USER_STMT + userId, String.class);
     }
 
 }

@@ -27,4 +27,16 @@ public class ProfileController {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
+
+
+    @PostMapping("/{userName}/unfollow")
+    public ResponseEntity<Boolean> unfollowUser(@PathVariable("userName") String followeeUserName) {
+
+        boolean isUnFollowed = userService.unfollowUser(followeeUserName);
+        if (isUnFollowed) {
+            return ResponseEntity.status(HttpStatus.OK).body(isUnFollowed);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+    }
 }

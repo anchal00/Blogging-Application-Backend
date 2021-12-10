@@ -62,10 +62,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (!optionalOfUser.isPresent()) {
             return Optional.empty();
         }
-
-        Integer userId = optionalOfUser.get().getId();
-
-        Article updatedArticle = articleDAO.updateArticle(userId, articleRequest);
+        Article updatedArticle = articleDAO.updateArticle( articleRequest);
         if (updatedArticle == null) {
             return Optional.empty();
         }
@@ -78,7 +75,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Optional<CommentResponse> createCommentOnArticle(Integer articleId, CreateCommentRequest commentRequest) {
+    public Optional<CommentResponse> createCommentOnArticle(String articleTitle, CreateCommentRequest commentRequest) {
 
         String userName = getCurrentUserInfo();
         if (userName == null) {
@@ -86,7 +83,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         Optional<User> optionalOfUser = userDAO.findByUserName(userName);
 
-        CommentResponse createdComment = articleDAO.createCommentOnArticle(articleId, optionalOfUser.get().getId(),
+        CommentResponse createdComment = articleDAO.createCommentOnArticle(articleTitle, optionalOfUser.get().getId(),
                 optionalOfUser.get().getFirstName() + " " + optionalOfUser.get().getLastName(), commentRequest);
 
         if (createdComment == null) {
@@ -96,35 +93,35 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Optional<List<CommentResponse>> getCommentsForArticle(Integer articleId) {
+    public Optional<List<CommentResponse>> getCommentsForArticle(String articleTitle) {
 
-        List<CommentResponse> comments = articleDAO.fetchAllCommentsForArticle(articleId);
+        List<CommentResponse> comments = articleDAO.fetchAllCommentsForArticle(articleTitle);
 
         return Optional.of(comments);
     }
 
     @Override
-    public boolean favouriteArticle(Integer articleId) {
+    public boolean favouriteArticle(String articleTitle) {
 
         String userName = getCurrentUserInfo();
         if (userName == null) {
             return false;
         }
 
-        boolean markedFavourite = articleDAO.markArticleAsFavouriteForUser(articleId, userName);
+        boolean markedFavourite = articleDAO.markArticleAsFavouriteForUser(articleTitle, userName);
 
         return markedFavourite;
     }
 
     @Override
-    public boolean UnfavouriteArticle(Integer articleId) {
+    public boolean UnfavouriteArticle(String articleTitle) {
 
         String userName = getCurrentUserInfo();
         if (userName == null) {
             return false;
         }
 
-        boolean markedUnFavourite = articleDAO.markArticleAsUnFavouriteForUser(articleId, userName);
+        boolean markedUnFavourite = articleDAO.markArticleAsUnFavouriteForUser(articleTitle, userName);
 
         return markedUnFavourite;
     }
@@ -158,5 +155,11 @@ public class ArticleServiceImpl implements ArticleService {
     public List<ArticleResponse> getArticlesFavouritedByUser(String userName) {
         List<ArticleResponse> articles = articleDAO.fetchArticlesFavouritedByUser(userName);
         return articles;
+    }
+
+    @Override
+    public boolean deleteArticle(String articleTitle) {
+        boolean deleted = articleDAO.deleteArticleById(articleTitle);
+        return deleted;
     }
 }

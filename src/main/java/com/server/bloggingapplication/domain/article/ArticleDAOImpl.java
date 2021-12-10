@@ -25,6 +25,7 @@ import com.server.bloggingapplication.domain.user.User;
 import com.server.bloggingapplication.domain.user.UserDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.amqp.RabbitProperties.Retry;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -43,7 +44,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String UPDATE_ARTICLES_TIMESTAMP = "UPDATE articles SET updated_at = CURRENT_TIMESTAMP where id = ?";
     private final String CREATE_ARTICLE_STMT = "INSERT INTO articles(author_id, title , article_description , body) VALUES(?,?,?,?)";
     private final String FETCH_ARTICLE_USING_ID_STMT = "SELECT * from articles where id = ?";
-    private final String FIND_ARTICLE_ID_BY_AUTHORID_STMT = "SELECT id from articles WHERE author_id = ? and title = ?";
+    private final String FIND_ARTICLE_ID_BY_AUTHORID_STMT = "SELECT id from articles WHERE title = ?";
     private final String UPDATE_ARTICLE_STMT = "UPDATE articles SET title = ?, body = ? ,article_description = ? WHERE id = ?";
 
     private final String CREATE_COMMENT_ON_ARTICLE_STMT = "INSERT INTO comments(body, user_id, article_id) VALUES (?,?,?)";
@@ -55,7 +56,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     private final String UNFAVOURITE_ARTICLE_STMT = "DELETE FROM article_favourites WHERE article_id = ? and user_id = ?";
     private final String FIND_FAVOURITED_ARTICLE_STMT = "SELECT COUNT(*) FROM article_favourites WHERE article_id = ? and user_id = ?";
 
-    private final String FETCH_ARTICLES_BY_TAGS_STMT = "SELECT * FROM articles WHERE articles.id IN (SELECT article_id SELECT articles_tags LEFT JOIN tags ON articles_tags.tag_id = tags.id WHERE tag = ?)";
+    private final String FETCH_ARTICLES_BY_TAGS_STMT = "SELECT * FROM articles WHERE articles.id IN (SELECT article_id FROM articles_tags LEFT JOIN tags ON articles_tags.tag_id = tags.id WHERE tag = ?)";
     private final String GET_TAGS_FOR_ARTICLE_STMT = "SELECT * FROM tags WHERE id IN (SELECT tag_id FROM articles_tags WHERE article_id = ?)";
 
     @Autowired
@@ -164,11 +165,23 @@ public class ArticleDAOImpl implements ArticleDAO {
 
     }
 
-    private Integer getArticleIdWithRequiredTitleForGivenUserId(Integer userId, String title) {
+    @Override
+    public boolean deleteArticleById(String articleTitle) {
+        try {
+            jdbcTemplate.update("DELETE FROM articles WHERE title = ?", new Object[] { articleTitle });
+            return true;
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+    private Integer getArticleIdWithRequiredTitleForGivenUserId(String title) {
         try {
 
             Integer articleId = jdbcTemplate.queryForObject(FIND_ARTICLE_ID_BY_AUTHORID_STMT,
-                    new Object[] { userId, title }, Integer.class);
+                    new Object[] { title }, Integer.class);
 
             return articleId;
         } catch (DataAccessException e) {
@@ -178,9 +191,9 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest) {
+    public Article updateArticle(UpdateArticleRequest articleRequest) {
 
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(userId, articleRequest.getTitle());
+        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleRequest.getTitle());
         // no article exists
         if (articleId == null) {
             return null;
@@ -271,11 +284,13 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId, String publisherName,
+    public CommentResponse createCommentOnArticle(String articleTitle, Integer publisherId, String publisherName,
             CreateCommentRequest commentRequest) {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String bodyOfComment = commentRequest.getBody();
+        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
+
         try {
             jdbcTemplate.update(new PreparedStatementCreator() {
                 @Override
@@ -305,10 +320,11 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId) {
+    public List<CommentResponse> fetchAllCommentsForArticle(String articleTitle) {
+
+        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
 
         try {
-
             List<CommentResponse> comments = jdbcTemplate.query(new PreparedStatementCreator() {
                 @Override
                 public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -329,9 +345,10 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public boolean markArticleAsFavouriteForUser(Integer articleId, String userName) {
+    public boolean markArticleAsFavouriteForUser(String articleTitle, String userName) {
 
         Optional<User> currentUser = userDAO.findByUserName(userName);
+        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
         if (!currentUser.isPresent()) {
             return false;
         }
@@ -345,9 +362,10 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName) {
+    public boolean markArticleAsUnFavouriteForUser(String articleTitle, String userName) {
 
         Optional<User> currentUser = userDAO.findByUserName(userName);
+        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
         if (!currentUser.isPresent()) {
             return false;
         }

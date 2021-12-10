@@ -12,6 +12,7 @@ import com.server.bloggingapplication.domain.article.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,16 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(optionalOfCreatedArticle.get());
     }
 
+    @DeleteMapping("/{articleTitle}")
+    public ResponseEntity<String> deleteArticle(@PathVariable("articleTitle") String articleTitle) {
+        boolean isDeleted = articleService.deleteArticle(articleTitle);
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.OK).body("Article Deleted Successfully");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        
+    }
+
     @PutMapping("/")
     public ResponseEntity<Article> updateArticle(@RequestBody UpdateArticleRequest articleRequest) {
 
@@ -53,38 +64,38 @@ public class ArticleController {
 
     }
 
-    @PostMapping("/{articleId}/comments")
+    @PostMapping("/{articleTitle}/comments")
     public ResponseEntity<CommentResponse> postComment(@Valid @RequestBody CreateCommentRequest comment,
-            @PathVariable("articleId") Integer articleId) {
+            @PathVariable("articleTitle") String articleTitle) {
 
-        Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleId, comment);
+        Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleTitle, comment);
         if (!generatedCommentResponse.isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(generatedCommentResponse.get());
     }
 
-    @GetMapping("/{articleId}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(@PathVariable("articleId") Integer articleId) {
+    @GetMapping("/{articleTitle}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(@PathVariable("articleTitle") String articleTitle) {
 
-        Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleId);
+        Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleTitle);
         return ResponseEntity.status(HttpStatus.OK).body(optionalOfCommentsList.orElse(null));
     }
 
-    @PostMapping("/{articleId}/favourite")
-    public ResponseEntity<Boolean> markArticleAsFavourite(@PathVariable("articleId") Integer articleId) {
+    @PostMapping("/{articleTitle}/favourite")
+    public ResponseEntity<Boolean> markArticleAsFavourite(@PathVariable("articleTitle") String articleTitle) {
 
-        boolean isFavourited = articleService.favouriteArticle(articleId);
+        boolean isFavourited = articleService.favouriteArticle(articleTitle);
         if (isFavourited) {
             return ResponseEntity.status(HttpStatus.OK).body(isFavourited);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
 
-    @PostMapping("/{articleId}/unfavourite")
-    public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleId") Integer articleId) {
+    @PostMapping("/{articleTitle}/unfavourite")
+    public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleTitle") String articleTitle) {
 
-        boolean isUnFavourited = articleService.UnfavouriteArticle(articleId);
+        boolean isUnFavourited = articleService.UnfavouriteArticle(articleTitle);
         if (isUnFavourited) {
             return ResponseEntity.status(HttpStatus.OK).body(isUnFavourited);
         }

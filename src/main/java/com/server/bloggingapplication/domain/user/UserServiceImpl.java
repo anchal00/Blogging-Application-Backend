@@ -21,16 +21,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean unfollowUser(String followeeUserName) {
+        String followerUserName = getCurrentUserInfo();
+        if (followerUserName == null) {
+            return false;
+        }
+        if (followeeUserName.equals(followerUserName)) {
+            return false;
+        }
+
+        return userDAO.unfollowUser(followerUserName, followeeUserName);
+    }
+
+    @Override
     public boolean followUser(String followeeUserName) {
         String followerUserName = getCurrentUserInfo();
-        if (followerUserName == null)  {
+        if (followerUserName == null) {
             return false;
         }
         if (followeeUserName.equals(followerUserName)) {
             return false;
         }
         return userDAO.followUser(followerUserName, followeeUserName);
-        
+
     }
 
     private String getCurrentUserInfo() {

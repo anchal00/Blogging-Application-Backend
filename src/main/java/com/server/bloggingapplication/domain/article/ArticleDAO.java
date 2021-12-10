@@ -13,16 +13,16 @@ public interface ArticleDAO {
 
     public List<ArticleResponse> fetchLatestArticles();
 
-    public Article updateArticle(Integer userId, UpdateArticleRequest articleRequest);
+    public Article updateArticle(UpdateArticleRequest articleRequest);
 
-    public CommentResponse createCommentOnArticle(Integer articleId, Integer publisherId, String publisherName,
+    public CommentResponse createCommentOnArticle(String articleTitle, Integer publisherId, String publisherName,
             CreateCommentRequest commentRequest);
 
-    public List<CommentResponse> fetchAllCommentsForArticle(Integer articleId);
+    public List<CommentResponse> fetchAllCommentsForArticle(String articleTitle);
 
-    public boolean markArticleAsFavouriteForUser(Integer articleId, String userName);
+    public boolean markArticleAsFavouriteForUser(String articleTitle, String userName);
 
-    public boolean markArticleAsUnFavouriteForUser(Integer articleId, String userName);
+    public boolean markArticleAsUnFavouriteForUser(String articleTitle, String userName);
 
     public List<ArticleResponse> fetchArticlesFromFollowedUsers(String userName);
 
@@ -31,5 +31,7 @@ public interface ArticleDAO {
     public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName);
 
     public List<ArticleResponse> fetchArticlesFavouritedByUser(String userName);
+
+    public boolean deleteArticleById(String articleTitle);
 
 }
