@@ -31,7 +31,7 @@ CREATE TABLE articles(
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_author FOREIGN KEY (author_id) REFERENCES users(id)
+    CONSTRAINT fk_author FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE tags(
@@ -72,6 +72,6 @@ CREATE TABLE comments(
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_comment_article FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE,
-    CONSTRAINT fk_comment_user FOREIGN KEY (user_id) REFERENCES users(id)
+    CONSTRAINT fk_comment_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
