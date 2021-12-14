@@ -62,7 +62,7 @@ public class ArticleServiceImpl implements ArticleService {
         if (!optionalOfUser.isPresent()) {
             return Optional.empty();
         }
-        Article updatedArticle = articleDAO.updateArticle( articleRequest);
+        Article updatedArticle = articleDAO.updateArticle(articleRequest);
         if (updatedArticle == null) {
             return Optional.empty();
         }
@@ -161,5 +161,15 @@ public class ArticleServiceImpl implements ArticleService {
     public boolean deleteArticle(String articleTitle) {
         boolean deleted = articleDAO.deleteArticleById(articleTitle);
         return deleted;
+    }
+
+    @Override
+    public Optional<ArticleResponse> getArticleByTitle(String articleTitle) {
+
+        ArticleResponse articleResponse = articleDAO.fetchArticlesByTitle(articleTitle);
+        if (articleResponse == null) {
+            return Optional.empty();
+        }
+        return Optional.of(articleResponse);
     }
 }

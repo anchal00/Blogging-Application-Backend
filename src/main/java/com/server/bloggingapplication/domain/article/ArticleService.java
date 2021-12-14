@@ -22,4 +22,5 @@ public interface ArticleService {
     public List<ArticleResponse> getArticlesFromAuthor(String authorUserName);
     public List<ArticleResponse> getArticlesFavouritedByUser(String userName);
     public boolean deleteArticle(String articleTitle);
+    public Optional<ArticleResponse> getArticleByTitle(String articleTitle);
 }

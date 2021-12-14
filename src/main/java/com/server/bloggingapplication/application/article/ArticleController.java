@@ -28,11 +28,17 @@ public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
+    
+    @GetMapping("/{articleTitle}")
+    public ResponseEntity<ArticleResponse> getArticleByTitle(@PathVariable("articleTitle") String articleTitle) {
 
-    /**
-     * TODO :
-     * Implement GET methods for articles
-     */
+        Optional<ArticleResponse> optionalOfArtilce = articleService.getArticleByTitle(articleTitle);
+        if (!optionalOfArtilce.isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(optionalOfArtilce.get());
+    }
+
     @PostMapping("/")
     public ResponseEntity<ArticleResponse> publishArticle(@RequestBody PostArticleRequest articleRequest) {
 
@@ -50,7 +56,7 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.OK).body("Article Deleted Successfully");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        
+
     }
 
     @PutMapping("/")
@@ -68,7 +74,8 @@ public class ArticleController {
     public ResponseEntity<CommentResponse> postComment(@Valid @RequestBody CreateCommentRequest comment,
             @PathVariable("articleTitle") String articleTitle) {
 
-        Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleTitle, comment);
+        Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleTitle,
+                comment);
         if (!generatedCommentResponse.isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
@@ -76,7 +83,8 @@ public class ArticleController {
     }
 
     @GetMapping("/{articleTitle}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(@PathVariable("articleTitle") String articleTitle) {
+    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(
+            @PathVariable("articleTitle") String articleTitle) {
 
         Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleTitle);
         return ResponseEntity.status(HttpStatus.OK).body(optionalOfCommentsList.orElse(null));

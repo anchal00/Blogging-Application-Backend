@@ -25,7 +25,6 @@ import com.server.bloggingapplication.domain.user.User;
 import com.server.bloggingapplication.domain.user.UserDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.amqp.RabbitProperties.Retry;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -38,6 +37,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("deprecation")
 public class ArticleDAOImpl implements ArticleDAO {
 
+    private final String FETCH_ARTICLE_USING_TITLE_STMT = "SELECT * FROM articles WHERE title = ? ";
     private final String FETCH_ARTICLES_FAVOURITED_BY_USER_STMT = "SELECT * FROM articles WHERE id IN (SELECT article_id FROM article_favourites WHERE user_id = (SELECT id FROM users WHERE username = ?))";
     private final String FETCH_ARTICLE_THROUGH_USERNAME = "SELECT * FROM articles WHERE author_id = (SELECT id FROM users WHERE username = ?)";
     private final String FETCH_ARTICLES_FROM_USERFOLLOWINGS_STMT = "SELECT * FROM articles WHERE author_id IN (SELECT followeeId FROM user_followings WHERE followerId = ?)";
@@ -453,5 +453,22 @@ public class ArticleDAOImpl implements ArticleDAO {
         }, articleRowMapper());
 
         return populateTagsForArticle(articlesFavouritedByUser);
+    }
+
+    @Override
+    public ArticleResponse fetchArticlesByTitle(String articleTitle) {
+
+        try {
+
+            Article article = jdbcTemplate.queryForObject(FETCH_ARTICLE_USING_TITLE_STMT, articleRowMapper(),
+                    new Object[] { articleTitle });
+
+            return populateTagsForArticle(List.of(article)).get(0);
+
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+            return null;
+        }
+
     }
 }

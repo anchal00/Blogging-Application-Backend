@@ -34,4 +34,6 @@ public interface ArticleDAO {
 
     public boolean deleteArticleById(String articleTitle);
 
+    public ArticleResponse fetchArticlesByTitle(String articleTitle);
+
 }
