@@ -102,13 +102,6 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
     }
 
-    /**
-     * TODO:
-     * 
-     * Implement feature for filtering of articles based on -
-     * 3. favourited by user
-     */
-
     @GetMapping(params = { "tag" })
     public ResponseEntity<List<ArticleResponse>> getArticlesHavingTags(@RequestParam("tag") String tag) {
 
