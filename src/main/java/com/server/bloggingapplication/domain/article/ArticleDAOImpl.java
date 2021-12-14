@@ -177,7 +177,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 
     }
 
-    private Integer getArticleIdWithRequiredTitleForGivenUserId(String title) {
+    private Integer getArticleIdWithTitle(String title) {
         try {
 
             Integer articleId = jdbcTemplate.queryForObject(FIND_ARTICLE_ID_BY_AUTHORID_STMT,
@@ -193,7 +193,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public Article updateArticle(UpdateArticleRequest articleRequest) {
 
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleRequest.getTitle());
+        Integer articleId = getArticleIdWithTitle(articleRequest.getTitle());
         // no article exists
         if (articleId == null) {
             return null;
@@ -289,7 +289,7 @@ public class ArticleDAOImpl implements ArticleDAO {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String bodyOfComment = commentRequest.getBody();
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
+        Integer articleId = getArticleIdWithTitle(articleTitle);
 
         try {
             jdbcTemplate.update(new PreparedStatementCreator() {
@@ -322,7 +322,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<CommentResponse> fetchAllCommentsForArticle(String articleTitle) {
 
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
+        Integer articleId = getArticleIdWithTitle(articleTitle);
 
         try {
             List<CommentResponse> comments = jdbcTemplate.query(new PreparedStatementCreator() {
@@ -348,7 +348,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     public boolean markArticleAsFavouriteForUser(String articleTitle, String userName) {
 
         Optional<User> currentUser = userDAO.findByUserName(userName);
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
+        Integer articleId = getArticleIdWithTitle(articleTitle);
         if (!currentUser.isPresent()) {
             return false;
         }
@@ -365,7 +365,7 @@ public class ArticleDAOImpl implements ArticleDAO {
     public boolean markArticleAsUnFavouriteForUser(String articleTitle, String userName) {
 
         Optional<User> currentUser = userDAO.findByUserName(userName);
-        Integer articleId = getArticleIdWithRequiredTitleForGivenUserId(articleTitle);
+        Integer articleId = getArticleIdWithTitle(articleTitle);
         if (!currentUser.isPresent()) {
             return false;
         }
@@ -468,6 +468,39 @@ public class ArticleDAOImpl implements ArticleDAO {
         } catch (DataAccessException e) {
             e.printStackTrace();
             return null;
+        }
+
+    }
+
+    @Override
+    public boolean deleteCommentFromArticleByUser(Integer authorId, String articleTitle, Integer commentId) {
+
+        Integer articleId = getArticleIdWithTitle(articleTitle);
+
+        /**
+         * User can delete comment under following conditions -
+         * 1. he is the author of the article from which he is deleting the comment
+         * 2. he is the author of that comment
+         */
+
+        Integer authorIdForArticle = jdbcTemplate.queryForObject("SELECT author_id FROM articles WHERE id = ?",
+                new Object[] { articleId }, Integer.class);
+
+        Integer authorIdForComment = jdbcTemplate.queryForObject("SELECT user_id FROM comments WHERE id = ? ",
+                new Object[] { commentId }, Integer.class);
+
+        if (authorId == authorIdForArticle
+                || authorIdForComment == authorId) {
+
+            try {
+                jdbcTemplate.update("DELETE FROM comments WHERE commentId = ? ", new Object[] { commentId });
+                return true;
+            } catch (DataAccessException e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
         }
 
     }

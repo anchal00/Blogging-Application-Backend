@@ -96,7 +96,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Optional<List<CommentResponse>> getCommentsForArticle(String articleTitle) {
 
         List<CommentResponse> comments = articleDAO.fetchAllCommentsForArticle(articleTitle);
-
+        
         return Optional.of(comments);
     }
 
@@ -171,5 +171,23 @@ public class ArticleServiceImpl implements ArticleService {
             return Optional.empty();
         }
         return Optional.of(articleResponse);
+    }
+
+    @Override
+    public boolean deleteCommentFromArticle(String articleTitle, Integer commentId) {
+        String currentUser = getCurrentUserInfo();
+        if (currentUser == null) {
+            return false;
+        }
+        Optional<User> currentUserOptional = userDAO.findByUserName(currentUser);
+
+        if (!currentUserOptional.isPresent()) {
+            return false;
+        }
+
+        boolean isDeleted = articleDAO.deleteCommentFromArticleByUser(currentUserOptional.get().getId(),
+                articleTitle, commentId);
+
+        return isDeleted;
     }
 }

@@ -36,4 +36,6 @@ public interface ArticleDAO {
 
     public ArticleResponse fetchArticlesByTitle(String articleTitle);
 
+    public boolean deleteCommentFromArticleByUser(Integer authorId, String articleTitle, Integer commentId);
+
 }

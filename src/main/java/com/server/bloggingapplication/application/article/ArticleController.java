@@ -10,6 +10,7 @@ import com.server.bloggingapplication.domain.article.ArticleResponse;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +29,7 @@ public class ArticleController {
 
     @Autowired
     private ArticleService articleService;
-    
+
     @GetMapping("/{articleTitle}")
     public ResponseEntity<ArticleResponse> getArticleByTitle(@PathVariable("articleTitle") String articleTitle) {
 
@@ -82,12 +83,31 @@ public class ArticleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(generatedCommentResponse.get());
     }
 
-    @GetMapping("/{articleTitle}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsForAnArticle(
+    /**
+     * TODO : TEST the method
+     */
+    @DeleteMapping("/{articleTitle}/comments/{commentId}")
+    public ResponseEntity<Boolean> deleteCommentsFromArticle(
+            @PathVariable("articleTitle") String articleTitle,
+            @PathVariable("commentId") Integer commentId) {
+
+        boolean isDeleted = articleService.deleteCommentFromArticle(articleTitle, commentId);
+        if (!isDeleted) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(isDeleted);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(isDeleted);
+    }
+
+    @GetMapping("/{articleTitle}/comments/")
+    public ResponseEntity<List<CommentResponse>> getCommentsFromArticle(
             @PathVariable("articleTitle") String articleTitle) {
 
-        Optional<List<CommentResponse>> optionalOfCommentsList = articleService.getCommentsForArticle(articleTitle);
-        return ResponseEntity.status(HttpStatus.OK).body(optionalOfCommentsList.orElse(null));
+        Optional<List<CommentResponse>> comments = articleService.getCommentsForArticle(articleTitle);
+
+        if (comments.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(comments.get());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
     @PostMapping("/{articleTitle}/favourite")
