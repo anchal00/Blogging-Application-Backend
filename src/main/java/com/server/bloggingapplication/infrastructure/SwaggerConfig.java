@@ -29,7 +29,7 @@ public class SwaggerConfig {
     private ApiInfo metaData() {
         return new ApiInfoBuilder()
                 .title("Blogging Application REST API")
-                .description("\"REST APIs for Blogging Web-Application\"")
+                .description("\"REST API for Blogging Web-Application\"")
                 .version("1.0")
                 .contact(new Contact("Anchal Sharma", "https://github.com/anchal00", "anchal82199@gmail.com"))
                 .build();

@@ -10,7 +10,6 @@ import com.server.bloggingapplication.domain.article.ArticleResponse;
 import com.server.bloggingapplication.domain.article.ArticleService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.integration.IntegrationAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,7 +41,8 @@ public class ArticleController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<ArticleResponse> publishArticle(@RequestBody PostArticleRequest articleRequest) {
+    public ResponseEntity<ArticleResponse> publishArticle(@RequestBody PostArticleRequest articleRequest,
+            @RequestHeader("Authorization") String authorization) {
 
         Optional<ArticleResponse> optionalOfCreatedArticle = articleService.createArticle(articleRequest);
         if (optionalOfCreatedArticle.isEmpty()) {
@@ -51,7 +52,8 @@ public class ArticleController {
     }
 
     @DeleteMapping("/{articleTitle}")
-    public ResponseEntity<String> deleteArticle(@PathVariable("articleTitle") String articleTitle) {
+    public ResponseEntity<String> deleteArticle(@PathVariable("articleTitle") String articleTitle,
+            @RequestHeader("Authorization") String authorization) {
         boolean isDeleted = articleService.deleteArticle(articleTitle);
         if (isDeleted) {
             return ResponseEntity.status(HttpStatus.OK).body("Article Deleted Successfully");
@@ -61,7 +63,8 @@ public class ArticleController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Article> updateArticle(@RequestBody UpdateArticleRequest articleRequest) {
+    public ResponseEntity<Article> updateArticle(@RequestBody UpdateArticleRequest articleRequest,
+            @RequestHeader("Authorization") String authorization) {
 
         Optional<Article> optionalOfUpdatedArticle = articleService.updateArticle(articleRequest);
         if (optionalOfUpdatedArticle.isPresent()) {
@@ -73,7 +76,8 @@ public class ArticleController {
 
     @PostMapping("/{articleTitle}/comments")
     public ResponseEntity<CommentResponse> postComment(@Valid @RequestBody CreateCommentRequest comment,
-            @PathVariable("articleTitle") String articleTitle) {
+            @PathVariable("articleTitle") String articleTitle,
+            @RequestHeader("Authorization") String authorization) {
 
         Optional<CommentResponse> generatedCommentResponse = articleService.createCommentOnArticle(articleTitle,
                 comment);
@@ -89,7 +93,8 @@ public class ArticleController {
     @DeleteMapping("/{articleTitle}/comments/{commentId}")
     public ResponseEntity<Boolean> deleteCommentsFromArticle(
             @PathVariable("articleTitle") String articleTitle,
-            @PathVariable("commentId") Integer commentId) {
+            @PathVariable("commentId") Integer commentId,
+            @RequestHeader("Authorization") String authorization) {
 
         boolean isDeleted = articleService.deleteCommentFromArticle(articleTitle, commentId);
         if (!isDeleted) {
@@ -111,7 +116,8 @@ public class ArticleController {
     }
 
     @PostMapping("/{articleTitle}/favourite")
-    public ResponseEntity<Boolean> markArticleAsFavourite(@PathVariable("articleTitle") String articleTitle) {
+    public ResponseEntity<Boolean> markArticleAsFavourite(@PathVariable("articleTitle") String articleTitle,
+            @RequestHeader("Authorization") String authorization) {
 
         boolean isFavourited = articleService.favouriteArticle(articleTitle);
         if (isFavourited) {
@@ -121,7 +127,8 @@ public class ArticleController {
     }
 
     @PostMapping("/{articleTitle}/unfavourite")
-    public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleTitle") String articleTitle) {
+    public ResponseEntity<Boolean> markArticleAsUnFavourite(@PathVariable("articleTitle") String articleTitle,
+            @RequestHeader("Authorization") String authorization) {
 
         boolean isUnFavourited = articleService.UnfavouriteArticle(articleTitle);
         if (isUnFavourited) {

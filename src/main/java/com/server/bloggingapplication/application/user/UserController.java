@@ -2,6 +2,7 @@ package com.server.bloggingapplication.application.user;
 
 import javax.validation.Valid;
 
+import com.server.bloggingapplication.application.security.AuthenticationFilter;
 import com.server.bloggingapplication.domain.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,5 +28,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with same username or email is already Registered ");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body("Success!");
+    }
+
+    /**
+     * Placeholder method for login endpoint, to make Swagger API doc work.
+     * Won't actually handle the login request, as that will be overridden by AuthenticationFilter
+     * @see AuthenticationFilter
+     */
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginUserRequestDTO loginRequest){
+        return ResponseEntity.status(HttpStatus.OK).body("TOKEN ___");
     }
 }

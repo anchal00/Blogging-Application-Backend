@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,13 +22,14 @@ public class HomeController {
     private ArticleService articleService;
 
     @GetMapping("/homefeed")
-    public ResponseEntity<Map<String,List<ArticleResponse>>> getArticleFromHomeFeed() {
+    public ResponseEntity<Map<String, List<ArticleResponse>>> getArticleFromHomeFeed(
+            @RequestHeader("Authorization") String authorization) {
 
         List<ArticleResponse> articlesOnHomeFeed = articleService.getHomeFeedArticles();
-        if(articlesOnHomeFeed == null) {
+        if (articlesOnHomeFeed == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
         }
-        
+
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("Articles from your followings", articlesOnHomeFeed));
     }
 
