@@ -1,5 +1,7 @@
 package com.server.bloggingapplication.domain.user;
 
+import java.util.Optional;
+
 import com.server.bloggingapplication.application.user.CreateUserRequestDTO;
 
 public interface UserService {
@@ -9,4 +11,6 @@ public interface UserService {
     boolean followUser(String followeeUserName);
 
     boolean unfollowUser(String followeeUserName);
+
+    Optional<UserProfile> getProfile(String username);
 }

@@ -1,5 +1,7 @@
 package com.server.bloggingapplication.domain.user;
 
+import java.util.Optional;
+
 import com.server.bloggingapplication.application.user.CreateUserRequestDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,19 @@ public class UserServiceImpl implements UserService {
             return null;
         String userName = auth.getPrincipal().toString();
         return userName;
+    }
+
+    @Override
+    public Optional<UserProfile> getProfile(String username) {
+        String currentlyLoggedInUsersName = getCurrentUserInfo();
+        if (currentlyLoggedInUsersName == null) {
+            return Optional.empty();
+        }
+        UserProfile userProfile = userDAO.fetchUserProfile(currentlyLoggedInUsersName, username);
+        if (userProfile == null) {
+            return Optional.empty();
+        }
+        return Optional.of(userProfile);
     }
 
 }

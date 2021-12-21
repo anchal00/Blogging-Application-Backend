@@ -21,7 +21,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("deprecation")
 public class UserDAOImpl implements UserDAO {
+
+    private static final String USER_FOLLOWS_ANOTHER_USER_STMT = "SELECT COUNT(*) FROM user_followings WHERE followerId = ? and followeeId = ?";
 
     private static final String UNFOLLOW_USER_STMT = "DELETE FROM user_followings VALUES (?, ?)";
 
@@ -39,7 +42,6 @@ public class UserDAOImpl implements UserDAO {
 
     @Override
     public Optional<User> findByUserName(String username) {
-
         List<User> users = jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -64,14 +66,14 @@ public class UserDAOImpl implements UserDAO {
                 String lastName = resultSet.getString("lastname");
                 String bio = resultSet.getString("bio");
                 String email = resultSet.getString("email");
-                String password = resultSet.getString("passwd");
-                User user = new User(id, firstName, lastName, userName, bio, email, password);
+                User user = new User(id, firstName, lastName, userName, bio, email);
                 return user;
             }
         };
         return rowMapper;
 
     }
+
     @Override
     public Integer saveUser(CreateUserRequestDTO user) {
         try {
@@ -146,6 +148,38 @@ public class UserDAOImpl implements UserDAO {
 
         return jdbcTemplate.queryForObject(
                 GET_FULL_NAME_OF_USER_STMT + userId, String.class);
+    }
+
+    @Override
+    public UserProfile fetchUserProfile(String currentlyLoggedInUsersName, String username) {
+
+        Optional<User> userInfoOptional = findByUserName(username);
+        Optional<User> currentlyLoggedInUsersInfoOptional = findByUserName(currentlyLoggedInUsersName);
+
+        if (!userInfoOptional.isPresent() || !currentlyLoggedInUsersInfoOptional.isPresent()) {
+            return null;
+        }
+        User userObject = userInfoOptional.get();
+        Integer currentlyLoggedInUsersId = currentlyLoggedInUsersInfoOptional.get().getId();
+        Integer usersId = userObject.getId();
+
+        boolean isFollowedByCurrentUser = checkIfFollows(currentlyLoggedInUsersId, usersId);
+
+        UserProfile profile = new UserProfile(userObject, isFollowedByCurrentUser);
+
+        return profile;
+    }
+
+    private boolean checkIfFollows(Integer followerId, Integer followeeId) {
+
+        int countOfRecords = jdbcTemplate.queryForObject(
+                USER_FOLLOWS_ANOTHER_USER_STMT,
+                new Object[] { followerId, followeeId }, Integer.class);
+
+        if (countOfRecords != 1) {
+            return false;
+        }
+        return true;
     }
 
 }
