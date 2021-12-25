@@ -97,7 +97,7 @@ public class UserDAOImpl implements UserDAO {
 
             return keyHolder.getKey().intValue();
         } catch (DataAccessException e) {
-            System.out.println("User with same username or email exists already ! ");
+            System.out.println(e.getMessage());
             return -1;
         }
 
