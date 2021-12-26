@@ -166,7 +166,15 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public boolean deleteArticleById(String articleTitle) {
+    public boolean deleteArticleByTitle(String articleTitle, String currentUserName) {
+
+        String authorOfArticle = jdbcTemplate.queryForObject("SELECT username FROM users WHERE id = (SELECT author_id FROM articles WHERE title = ?)",
+                new Object[] { articleTitle }, String.class);
+
+        if (!authorOfArticle.equals(currentUserName)) {
+            return false;
+        }
+
         try {
             jdbcTemplate.update("DELETE FROM articles WHERE title = ?", new Object[] { articleTitle });
             return true;
@@ -191,11 +199,15 @@ public class ArticleDAOImpl implements ArticleDAO {
     }
 
     @Override
-    public Article updateArticle(UpdateArticleRequest articleRequest) {
+    public Article updateArticle(UpdateArticleRequest articleRequest, String currentUserName) {
 
         Integer articleId = getArticleIdWithTitle(articleRequest.getTitle());
-        // no article exists
-        if (articleId == null) {
+
+        String authorOfArticle = jdbcTemplate.queryForObject("SELECT username FROM users WHERE id = (SELECT author_id FROM articles WHERE title = ?)",
+                new Object[] { articleRequest.getTitle() }, String.class);
+
+        // no article exists or the user who is deleting the article is not the author
+        if (articleId == null || !authorOfArticle.equals(currentUserName)) {
             return null;
         }
 
@@ -427,6 +439,9 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<ArticleResponse> fetchArticlesByAuthor(String authorUserName) {
 
+        if (userDAO.findByUserName(authorUserName).isEmpty()) {
+            return null;
+        }
         List<Article> articles = jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -442,6 +457,9 @@ public class ArticleDAOImpl implements ArticleDAO {
     @Override
     public List<ArticleResponse> fetchArticlesFavouritedByUser(String userName) {
 
+        if (userDAO.findByUserName(userName).isEmpty()) {
+            return null;
+        }
         List<Article> articlesFavouritedByUser = jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {

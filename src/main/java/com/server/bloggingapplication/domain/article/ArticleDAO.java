@@ -13,7 +13,7 @@ public interface ArticleDAO {
 
     public List<ArticleResponse> fetchLatestArticles();
 
-    public Article updateArticle(UpdateArticleRequest articleRequest);
+    public Article updateArticle(UpdateArticleRequest articleRequest,String currentUserName);
 
     public CommentResponse createCommentOnArticle(String articleTitle, Integer publisherId, String publisherName,
             CreateCommentRequest commentRequest);
@@ -32,7 +32,7 @@ public interface ArticleDAO {
 
     public List<ArticleResponse> fetchArticlesFavouritedByUser(String userName);
 
-    public boolean deleteArticleById(String articleTitle);
+    public boolean deleteArticleByTitle(String articleTitle, String currentUserName);
 
     public ArticleResponse fetchArticlesByTitle(String articleTitle);
 

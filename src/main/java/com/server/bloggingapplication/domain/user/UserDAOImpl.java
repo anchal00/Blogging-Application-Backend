@@ -26,7 +26,7 @@ public class UserDAOImpl implements UserDAO {
 
     private static final String USER_FOLLOWS_ANOTHER_USER_STMT = "SELECT COUNT(*) FROM user_followings WHERE followerId = ? and followeeId = ?";
 
-    private static final String UNFOLLOW_USER_STMT = "DELETE FROM user_followings VALUES (?, ?)";
+    private static final String UNFOLLOW_USER_STMT = "DELETE FROM user_followings WHERE followerId = ? and followeeId = ?";
 
     private static final String FOLLOW_USER_STMT = "INSERT INTO user_followings VALUES (?, ?)";
 
@@ -136,9 +136,10 @@ public class UserDAOImpl implements UserDAO {
         Integer followeeId = optionalOfFollowee.get().getId();
 
         try {
-            jdbcTemplate.update(UNFOLLOW_USER_STMT, new Object[] { followeeId, followerId });
+            jdbcTemplate.update(UNFOLLOW_USER_STMT, new Object[] { followerId, followeeId });
             return true;
         } catch (DataAccessException e) {
+            e.printStackTrace();
             return false;
         }
     }

@@ -3,6 +3,7 @@ package com.server.bloggingapplication.domain.article;
 import java.util.List;
 import java.util.Optional;
 
+import com.mysql.cj.callback.UsernameCallback;
 import com.server.bloggingapplication.application.article.CommentResponse;
 import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;
@@ -53,16 +54,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public Optional<Article> updateArticle(UpdateArticleRequest articleRequest) {
 
-        String userName = getCurrentUserInfo();
-        if (userName == null)
-            return Optional.empty();
-
-        Optional<User> optionalOfUser = userDAO.findByUserName(userName);
-
-        if (!optionalOfUser.isPresent()) {
-            return Optional.empty();
-        }
-        Article updatedArticle = articleDAO.updateArticle(articleRequest);
+        String currentUserName = getCurrentUserInfo();
+        if (currentUserName == null) return Optional.empty();
+        Article updatedArticle = articleDAO.updateArticle(articleRequest,currentUserName);
         if (updatedArticle == null) {
             return Optional.empty();
         }
@@ -78,7 +72,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Optional<CommentResponse> createCommentOnArticle(String articleTitle, CreateCommentRequest commentRequest) {
 
         String userName = getCurrentUserInfo();
-        if (userName == null) {
+        if (userName == null || userName.equals("anonymousUser")) {
             return Optional.empty();
         }
         Optional<User> optionalOfUser = userDAO.findByUserName(userName);
@@ -96,7 +90,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Optional<List<CommentResponse>> getCommentsForArticle(String articleTitle) {
 
         List<CommentResponse> comments = articleDAO.fetchAllCommentsForArticle(articleTitle);
-        
+
         return Optional.of(comments);
     }
 
@@ -159,7 +153,12 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public boolean deleteArticle(String articleTitle) {
-        boolean deleted = articleDAO.deleteArticleById(articleTitle);
+
+        String currentUser = getCurrentUserInfo();
+        if (currentUser == null) {
+            return false;
+        }
+        boolean deleted = articleDAO.deleteArticleByTitle(articleTitle, currentUser);
         return deleted;
     }
 
