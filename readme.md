@@ -27,6 +27,11 @@ Ensure that you have a user '**admin**' created already in your MySQL server, wi
 **To run the API server on a docker container follows the steps as listed below ->**
 
 Prereqs- Docker
+****************************************************************************************************
+Note - Instead of step 1 listed below, the docker image for this backend server can also be downloaded directly from Docker Hub
+
+From here -> https://hub.docker.com/r/anchal82199/blogappbackend
+****************************************************************************************************
 
 1. Use the Dockerfile from root project dir to create a docker image for the API server
    - Ensure that you are in dir BloggingApplication/
