@@ -4,12 +4,12 @@ USE blogapp;
 
 CREATE TABLE users(
     id int PRIMARY KEY AUTO_INCREMENT , 
-    firstname varchar(15) NOT NULL ,
-    lastname varchar(15), 
-    username varchar(10) NOT NULL, 
-    bio varchar(150), 
-    email varchar(20) UNIQUE NOT NULL, 
-    passwd varchar(60) NOT NULL
+    firstname varchar(100) NOT NULL ,
+    lastname varchar(100), 
+    username varchar(75) NOT NULL, 
+    bio varchar(1000), 
+    email varchar(255) UNIQUE NOT NULL, 
+    passwd varchar(255) NOT NULL
 );
 
 CREATE TABLE user_followings(
@@ -27,7 +27,7 @@ CREATE TABLE articles(
     author_id int NOT NULL,
     title varchar(255) UNIQUE NOT NULL ,
     article_description varchar(255) NOT NULL,
-    body varchar(1000) NOT NULL,
+    body varchar NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
@@ -64,7 +64,7 @@ CREATE TABLE article_favourites(
 CREATE TABLE comments(
     
     id int PRIMARY KEY AUTO_INCREMENT,
-    body varchar(255) NOT NULL,
+    body varchar(700) NOT NULL,
     user_id int NOT NULL,
     article_id int NOT NULL,
 
