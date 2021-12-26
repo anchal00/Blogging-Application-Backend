@@ -7,6 +7,7 @@ import com.server.bloggingapplication.application.security.UserDetailsServiceImp
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +30,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             "/v2/api-docs", 
             "/webjars/**" ,
             "/blogapp/users/signup",
-            "/blogapp/"
+            "/blogapp/",
+            "/blogapp/articles/**"
         };
 
     @Override
@@ -39,26 +41,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        
         http.csrf().disable().authorizeRequests()
-                .antMatchers(AUTH_WHITELIST)
-                .permitAll().anyRequest().authenticated().and()
+                .antMatchers(HttpMethod.GET , AUTH_WHITELIST)
+                .permitAll()
+                .anyRequest().authenticated().and()
                 .addFilter(new AuthenticationFilter(authenticationManager()))
                 .addFilter(new AuthorizationFilter(authenticationManager())).sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     }
-
-    // @Bean
-    // CorsConfigurationSource corsConfigurationSource() {
-    // final UrlBasedCorsConfigurationSource source = new
-    // UrlBasedCorsConfigurationSource();
-
-    // CorsConfiguration corsConfiguration = new
-    // CorsConfiguration().applyPermitDefaultValues();
-    // source.registerCorsConfiguration("/**", corsConfiguration);
-
-    // return source;
-    // }
 
     @Bean
     PasswordEncoder getPassWordEncoder() {
