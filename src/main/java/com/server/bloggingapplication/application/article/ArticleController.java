@@ -46,7 +46,7 @@ public class ArticleController {
 
         Optional<ArticleResponse> optionalOfCreatedArticle = articleService.createArticle(articleRequest);
         if (optionalOfCreatedArticle.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(optionalOfCreatedArticle.get());
     }
