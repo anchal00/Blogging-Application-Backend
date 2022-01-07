@@ -511,7 +511,7 @@ public class ArticleDAOImpl implements ArticleDAO {
                 || authorIdForComment == authorId) {
 
             try {
-                jdbcTemplate.update("DELETE FROM comments WHERE commentId = ? ", new Object[] { commentId });
+                jdbcTemplate.update("DELETE FROM comments WHERE id = ? ", new Object[] { commentId });
                 return true;
             } catch (DataAccessException e) {
                 e.printStackTrace();
