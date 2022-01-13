@@ -26,7 +26,15 @@ Ensure that you have a user '**admin**' created already in your MySQL server, wi
 
 **To run the API server on a docker container follows the steps as listed below ->**
 
-Prereqs- Docker
+**Prereqs- Docker**
+**Docker can be installed by doing ->**
+sudo apt-get update
+sudo apt-get install wget
+wget -qO- https://get.docker.com/ | sh
+sudo usermod -aG docker $USER
+sudo service docker start
+newgrp docker
+
 ****************************************************************************************************
 Note - Instead of step 1 listed below, the docker image for this backend server can also be downloaded directly from Docker Hub
 
@@ -50,7 +58,7 @@ From here -> https://hub.docker.com/r/anchal82199/blogappbackend
 4. Now we have to create the DB schema inside the running MYSQL container 
    -  Copy the 'src/main/resources/db.sql' file to the running mysql container first
       -  You can use the command **docker ps** to get the container id
-      -  Then use the command **dokcer cp <path-to-db.sql> <mysql-container-id>:/**
+      -  Then use the command **docker cp <path-to-db.sql> <mysql-container-id>:/**
       -  To run the db.sql file inside mysql container , first get inside 
          the mysql container using command **docker exec -it <mysql-container-id> bash**
       - Now run the command **mysql -u root -p -e 'source db.sql'** once you are inside the container
