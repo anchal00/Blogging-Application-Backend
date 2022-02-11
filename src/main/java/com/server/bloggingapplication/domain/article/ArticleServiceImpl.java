@@ -3,7 +3,6 @@ package com.server.bloggingapplication.domain.article;
 import java.util.List;
 import java.util.Optional;
 
-import com.mysql.cj.callback.UsernameCallback;
 import com.server.bloggingapplication.application.article.CommentResponse;
 import com.server.bloggingapplication.application.article.CreateCommentRequest;
 import com.server.bloggingapplication.application.article.PostArticleRequest;

@@ -86,10 +86,7 @@ public class ArticleController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(generatedCommentResponse.get());
     }
-
-    /**
-     * TODO : TEST the method
-     */
+    
     @DeleteMapping("/{articleTitle}/comments/{commentId}")
     public ResponseEntity<Boolean> deleteCommentsFromArticle(
             @PathVariable("articleTitle") String articleTitle,

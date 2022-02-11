@@ -1,0 +1,571 @@
+{
+	"info": {
+		"_postman_id": "665ae45d-3b16-4c40-b3a7-cce1d7662bb0",
+		"name": "BloggingAppServer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Signup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"anchal\",\n    \"password\":\"12345678\",\n    \"email\":\"anchal@gmail.com\",\n    \"firstname\":\"Anchal\",\n    \"lastname\":\"sharma\",\n    \"bio\":\"Computer Science Student\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8085/blogapp/users/signup",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"users",
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\":\"anchal101\",\n    \"password\":\"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8085/blogapp/users/login",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Articles",
+			"item": [
+				{
+					"name": "PostArticle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzU4MTF9.zjDj5OdyyRFXmmWW2b1NQo5_VVgDKocY7T-oFzWhTHI",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\":\"Introduction To C++\",\n    \"description\":\"A brief Introduction to C++ Programming language\",\n    \"body\":\"C++ is a widely used low level programming language. It was created by Bjarne Stroustrup\",\n    \"tags\":[\"C++\", \"programming\", \"C family language\"]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetArticlesFromAuthor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles?author=John",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles"
+							],
+							"query": [
+								{
+									"key": "author",
+									"value": "John"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateArticle",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDA1NDA4ODJ9.EesQ5EpmjhYVRz5J4llfOaLmgTRZBh-RS12oNW9g4Sw",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"body\": \"JAVA was developed by James Gosling at Sun Microsystems Inc in the year 1991\",\n  \"description\": \"Java programming language Introduction [Updated 2]\",\n  \"title\": \"Introduction To Java\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteArticle",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDA1NDA4ODJ9.EesQ5EpmjhYVRz5J4llfOaLmgTRZBh-RS12oNW9g4Sw",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Introduction To Python",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Introduction To Python"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CommentOnArticle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzgyNTN9.i7YpfU8ffuUUjLqgAhtNRODX-VgMT0oQuZzyP4rl41w",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"body\": \"Thanx !\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Introduction To Java/comments",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Introduction To Java",
+								"comments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCommentsOfArticle",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDAwMTgxNTZ9.FDYIhtAab5XgtBkmHU2eIbHOOq6Pyn7rVfsqIcjKQzw",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Introduction To Java/comments/",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Introduction To Java",
+								"comments",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "MarkArticleAsFav",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1Nzc1ODh9.hM0WhHt3uDwmWb_4JDtJ_mD_jf7F3uCPPGvapV50u4U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Sample Article 2/favourite",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Sample Article 2",
+								"favourite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UnFavouriteArticle",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1Nzc1ODh9.hM0WhHt3uDwmWb_4JDtJ_mD_jf7F3uCPPGvapV50u4U",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Sample Article 2/unfavourite",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Sample Article 2",
+								"unfavourite"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetFavouriteArticles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2Mzk1MDYwMDh9.qnHZ_TwCr3kwPUMqPKiqatjjEn9xRyZItxZwMD2B43M",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles?favourited=john",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles"
+							],
+							"query": [
+								{
+									"key": "favourited",
+									"value": "john"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetArticlesByTag",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles?tag=programming",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles"
+							],
+							"query": [
+								{
+									"key": "tag",
+									"value": "programming"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetArticleByTitle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8085/blogapp/articles/Introduction To Java",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"articles",
+								"Introduction To Java"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Home",
+			"item": [
+				{
+					"name": "GetAllRecentArticles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetHomeFeedArticles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzY4ODR9.A6xhqtyXJIeawiAB3kVl7KhWp440suKlDYXhI-w9lbU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/homefeed",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"homefeed"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserProfiles",
+			"item": [
+				{
+					"name": "FollowUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzY4ODR9.A6xhqtyXJIeawiAB3kVl7KhWp440suKlDYXhI-w9lbU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/profiles/John/follow",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"profiles",
+								"John",
+								"follow"
+							],
+							"query": [
+								{
+									"key": "=",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UnfollowUser",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzY4ODR9.A6xhqtyXJIeawiAB3kVl7KhWp440suKlDYXhI-w9lbU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/profiles/john/unfollow",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"profiles",
+								"john",
+								"unfollow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProfile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbmNoYWwxMDEiLCJleHAiOjE2NDE1NzY4ODR9.A6xhqtyXJIeawiAB3kVl7KhWp440suKlDYXhI-w9lbU",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "localhost:8085/blogapp/profiles/john",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"blogapp",
+								"profiles",
+								"john"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	}
+}

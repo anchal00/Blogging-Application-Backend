@@ -56,7 +56,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult) throws IOException, ServletException {
 
         String jwtToken = JWT.create().withSubject(this.userData.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 15_00_000L))
+                .withExpiresAt(new Date(System.currentTimeMillis() + 72_00_000L)) //2 hours
                 .sign(Algorithm.HMAC256("TEST_SECRET_KEY"));
 
         String body = ((org.springframework.security.core.userdetails.User)authResult.getPrincipal()).getUsername()+" " + jwtToken;
